@@ -4,9 +4,9 @@ services:
     build: ./api-gateway
     container_name: microservices_container_api-gateway
     ports:
-    - 8000:8000
+    - 7000:7000
     expose:
-    - "8000"
+    - "7000"
     networks:
     - dev_network
     depends_on:
@@ -22,18 +22,18 @@ services:
     build: ./adminservices
     container_name: microservices_container_adminservices
     ports:
-    - 8001:8001
+    - 7001:7001
     expose:
-    - "8001"
+    - "7001"
     networks:
     - dev_network
   customerservices:
     build: ./customerservices
     container_name: microservices_container_customerservices
     ports:
-    - 8002:8002
+    - 7002:7002
     expose:
-    - "8002"
+    - "7002"
     networks:
     - dev_network
 
@@ -41,9 +41,9 @@ services:
     build: ./googleservices
     container_name: microservices_container_googleservices
     ports:
-      - "8003:8003"
+      - "7003:7003"
     expose:
-    - "8003"  
+    - "7003"  
     networks:
       - dev_network
 
@@ -51,9 +51,9 @@ services:
     build: ./miscservices
     container_name: microservices_container_miscservices
     ports:
-      - "8004:8004"
+      - "7004:7004"
     expose:
-    - "8004"  
+    - "7004"  
     networks:
       - dev_network
 
@@ -61,9 +61,9 @@ services:
     build: ./notificationservices
     container_name: microservices_container_notificationservices
     ports:
-      - "8005:8005"
+      - "7005:7005"
     expose:
-    - "8005"  
+    - "7005"
     networks:
       - dev_network 
 
@@ -71,9 +71,9 @@ services:
     build: ./reportservices
     container_name: microservices_container_reportservices
     ports:
-      - "8006:8006"
+      - "7006:7006"
     expose:
-    - "8006"
+    - "7006"
     networks:
       - dev_network
 
@@ -81,9 +81,9 @@ services:
     build: ./subscriptionservices
     container_name: microservices_container_subscriptionservices
     ports:
-      - "8007:8007"
+      - "7007:7007"
     expose:
-    - "8007"
+    - "7007"
     networks:
       - dev_network
 
@@ -91,9 +91,9 @@ services:
     build: ./voucherservices
     container_name: microservices_container_voucherservices
     ports:
-      - "8008:8008"
+      - "7008:7008"
     expose:
-    - "8008"
+    - "7008"
     networks:
       - dev_network  
 networks:

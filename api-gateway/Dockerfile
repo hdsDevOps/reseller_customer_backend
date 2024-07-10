@@ -21,7 +21,7 @@ RUN npm install
 COPY . /api-gateway
 
 # Ensure port 3000 is accessible to our system
-EXPOSE 8000
+EXPOSE 7000
 
 # Run yarn dev, as we would via the command line 
 CMD ["node", "index"]

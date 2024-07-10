@@ -1,7 +1,7 @@
 /* Using ExpressJS frameword to create a simple REST API using micro services method */
 const express = require('express');// Import the Express module
 const { createProxyMiddleware } = require('http-proxy-middleware');// Import the http-proxy-middleware module
-const PORT = 8000;// Set the port number for the server
+const PORT = 7000;// Set the port number for the server
 var cors = require('cors');
 const app = express();
 
@@ -13,14 +13,14 @@ app.use(cors({
 
 // Define the routes for the micro services
 const routes = {
-    '/adminservices':"http://adminservices:8001",
-    '/customerservices':"http://customerservices:8002",
-    '/googleservices':"http://googleservices:8003",
-    '/miscservices':"http://miscservices:8004",
-    '/notificationservices':"http://notificationservices:8005",
-    '/reportservices':"http://reportservices:8006",
-    '/subscriptionservices':"http://subscriptionservices:8007",
-    '/voucherservices':"http://voucherservices:8008",
+    '/adminservices':"http://adminservices:7001",
+    '/customerservices':"http://customerservices:7002",
+    '/googleservices':"http://googleservices:7003",
+    '/miscservices':"http://miscservices:7004",
+    '/notificationservices':"http://notificationservices:7005",
+    '/reportservices':"http://reportservices:7006",
+    '/subscriptionservices':"http://subscriptionservices:7007",
+    '/voucherservices':"http://voucherservices:7008",
 }
 for(const route in routes){
     const target = routes[route];

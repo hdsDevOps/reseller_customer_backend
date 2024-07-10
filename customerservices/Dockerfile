@@ -24,7 +24,7 @@ RUN npm install
 COPY . /customerservices
 
 # Ensure port 3000 is accessible to our system
-EXPOSE 8002
+EXPOSE 7002
 
 # Run yarn dev, as we would via the command line 
 CMD ["nodemon", "index.js"]

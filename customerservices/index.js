@@ -1,7 +1,7 @@
 /* Using ExpressJS frameword to create a simple REST API using micro services method */
 const express = require("express"); // Import the Express module
 const app = express();
-const PORT = 8002; // Set the port number for the server
+const PORT = 7002; // Set the port number for the server
 var cors = require('cors');
 app.use(cors());
 const adminCredentialsRoute  = require('./routes/loginroute.js');
