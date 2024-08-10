@@ -2,9 +2,11 @@
 const express = require("express"); // Import the Express module
 const app = express();
 const PORT = 7002; // Set the port number for the server
-var cors = require('cors');
+const cors = require('cors');
+const registerUser = require("./routes/registerroute")
+
+
 app.use(cors());
-const adminCredentialsRoute  = require('./routes/loginroute.js');
 app.use(express.json());
 app.use(
     express.urlencoded({
@@ -19,7 +21,7 @@ app.get('/customerservices/test',(req,res)=>{
     res.send("We Are Calling User Test API");
 })
 
-app.use('/customer',adminCredentialsRoute);
+app.use('/customer',registerUser);
 // Start the server and listen on the specified port
 app.listen(PORT,()=>{
     console.log("Calling customer Services");
