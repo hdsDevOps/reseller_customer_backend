@@ -7,11 +7,20 @@ const {
 } = require("../anotherhelper");
 const { admin, db } = require("../dbconfig");
 
+
+/**
+ * Handles user registration, including validation, password hashing, OTP generation, 
+ * and user creation in the database. It also sends a verification email to the user.
+ *
+ * @param {object} req - Express request object containing user registration data
+ * @param {object} res - Express response object
+ * @return {Promise<void>} 
+ */
 const register = async (req, res) => {
   try {
     const result = validationResult(req);
     if (!result.isEmpty())
-      return res.status(400).json({ errors: result.array() });
+      return res.status(422).json({ errors: result.array() });
 
     const {
       firstName,
@@ -31,23 +40,23 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const otp = generateOTP();
 
-    console.log({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      phoneNumber,
-      businessName,
-      streetAddress,
-      state,
-      region,
-      city,
-      zipCode,
-      otp,
-      isVerified: false,
-      isDisabled: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    // console.log({
+    //   firstName,
+    //   lastName,
+    //   email,
+    //   password: hashedPassword,
+    //   phoneNumber,
+    //   businessName,
+    //   streetAddress,
+    //   state,
+    //   region,
+    //   city,
+    //   zipCode,
+    //   otp,
+    //   isVerified: false,
+    //   isDisabled: false,
+    //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    // });
     const user = {
       firstName,
       lastName,
@@ -99,6 +108,15 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * Verifies a user's one-time password (OTP) and updates their account verification status.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {string} req.body.email - The user's email address.
+ * @param {string} req.body.otp - The one-time password to verify.
+ * @param {object} res - The HTTP response object.
+ * @return {object} A JSON response with a success or error message.
+ */
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -138,6 +156,13 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+/**
+ * Generates a new one-time password (OTP) for a user and sends it to their email address.
+ *
+ * @param {object} req - Express request object containing the user's email address in the request body.
+ * @param {object} res - Express response object used to send the response back to the client.
+ * @return {Promise<void>} 
+ */
 const generateNewOtp = async (req, res) => {
   try {
     const { email } = req.body;
