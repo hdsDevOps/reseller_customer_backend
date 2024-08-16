@@ -1,3 +1,4 @@
+const { checkSchema } = require('express-validator');
 
 const createUserValidationSchema = {
   firstName: {
@@ -26,7 +27,7 @@ const createUserValidationSchema = {
   },
   password: {
     isStrongPassword: {
-      ninLength: 8,
+      minLength: 8,
       minLowercase: 1,
       minUppercase: 1,
       minSymbols: 1,
@@ -51,4 +52,48 @@ const createUserValidationSchema = {
   },
 };
 
-module.exports = { createUserValidationSchema };
+const emailValidationSchema = {
+  email: {
+    isEmail: {
+      errorMessage: 'Invalid email format'
+    },
+    notEmpty: {
+      errorMessage: 'Email is required'
+    }
+  }
+};
+
+const passwordResetValidationSchema = {
+  email: {
+    isEmail: {
+      errorMessage: 'Invalid email format'
+    },
+    notEmpty: {
+      errorMessage: 'Email is required'
+    }
+  },
+  newPassword: {
+    isLength: {
+      options: { min: 8 },
+      errorMessage: 'Password must be at least 8 characters long'
+    },
+    notEmpty: {
+      errorMessage: 'New password is required'
+    }
+  },
+  confirmPassword: {
+    custom: {
+      options: (value, { req }) => value === req.body.newPassword,
+      errorMessage: 'Passwords do not match'
+    },
+    notEmpty: {
+      errorMessage: 'Confirm password is required'
+    }
+  }
+};
+
+module.exports = {
+  createUserValidationSchema,
+  emailValidationSchema,
+  passwordResetValidationSchema
+};
