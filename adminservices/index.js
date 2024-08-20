@@ -1,7 +1,7 @@
 /* Using ExpressJS frameword to create a simple REST API using micro services method */
 const express = require("express"); // Import the Express module
 const app = express();
-const PORT = 8001; // Set the port number for the server
+const PORT = 7001; // Set the port number for the server
 var cors = require('cors');
 require('dotenv').config();
 const helper = require('./helper');
@@ -18,9 +18,6 @@ app.get('/adminservices',(req,res)=>{
     res.send("We are calling admin services API");
 })
 
-app.get('/test',(req,res)=>{
-    res.send("We are calling admin services API");
-})
 
 app.get('/adminservices/test',(req,res)=>{
     res.send("We Are Calling User Test API");

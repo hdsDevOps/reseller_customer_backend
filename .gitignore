@@ -22,6 +22,7 @@
 /microfrontends/admin-portal/store/.env
 
 /microfrontends/customer-portal/store/.env
+/customerservices/node_modules
 
 /.pnp
 .pnp.js
