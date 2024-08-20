@@ -19,8 +19,7 @@ const { admin, db } = require("../dbconfig");
 const register = async (req, res) => {
   try {
     const result = validationResult(req);
-    if (!result.isEmpty())
-      return res.status(422).json({ errors: result.array() });
+    if(!result.isEmpty()) return res.status(422).json({ errors: result.array() });
 
     const {
       firstName,
@@ -39,6 +38,7 @@ const register = async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const otp = generateOTP();
+    const hashedOtp = await bcrypt.hash(otp, saltRounds)
 
     // console.log({
     //   firstName,
@@ -55,7 +55,8 @@ const register = async (req, res) => {
     //   otp,
     //   isVerified: false,
     //   isDisabled: false,
-    //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    //   createdAt: String(Date(admin.firestore.FieldValue.serverTimestamp())),
+    //   updatedAt: String(Date(admin.firestore.FieldValue.serverTimestamp())),
     // });
     const user = {
       firstName,
@@ -69,42 +70,38 @@ const register = async (req, res) => {
       region,
       city,
       zipCode,
-      otp,
+      otp: hashedOtp,
       otpCreatedAt: admin.firestore.FieldValue.serverTimestamp(),
       isVerified: false,
       isDisabled: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
-    const userSnapshot = await db
-      .collection("users")
-      .where("email", "==", user.email)
-      .get();
-    if (!userSnapshot.empty) {
-      res.status(400).json({ error: "Email already registered" });
-    }
+    const userSnapshot = await db.collection("users").where("email", "==", user.email).get();
+    if(!userSnapshot.empty) return res.status(400).json({ message: "Email already registered" });
+
     const filteredUserObj = removeUndefinedProperties(user);
+    // const emailResponse = await sendEmail(user);
 
-    const emailResponse = await sendEmail(user);
-
-    if (emailResponse == null) {
-      res.status(400).json({
-        message: "Something went wrong. Unable to complete registration",
-      });
-    }
-    if (emailResponse === "Success") {
+    // if (emailResponse == null) return res.status(400).json({message: "Something went wrong. Unable to complete registration",});
+    // }
+    // if (emailResponse === "Success") {}
       const savedUser = await db.collection("users").add(filteredUserObj);
-      res
-        .status(201)
-        .json(
+      const savedUserDoc = await savedUser.get();
+
+      if(!savedUserDoc.exists) return res.status(400).json({message: "User document not found after creation"});
+
+      const savedUserObj = savedUserDoc.data();
+      res.status(201).json(
           {
             message: "User created successfully",
             id: savedUser.id,
-            email: savedUser.email,
+            email: savedUserObj.email,
+            isVerified: savedUserObj.isVerified
           },
         );
-    }
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    res.status(400).json({ message: e.message });
   }
 };
 
@@ -120,37 +117,30 @@ const register = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const userSnapshot = await db
-      .collection("users")
-      .where("email", "==", email)
-      .get();
-    if (userSnapshot.empty) {
-      res.status(400).json({ message: "Invalid email" });
-    }
+    const userSnapshot = await db.collection("users").where("email", "==", email).get();
+    if(userSnapshot.empty) return res.status(400).json({ message: "Invalid email" });
     const userDoc = userSnapshot.docs[0];
+    const userRef = userDoc.data()
 
-    if (userDoc.data().isVerified !== false) {
-      res.status(400).json({ message: "User is verified" });
-    }
+    if(userRef.isVerified !== false) return res.status(400).json({ message: "User is verified" });
 
-    if (userDoc.data().otp !== otp) {
-      res.status(400).json({ message: "Invalid OTP" });
-    }
+    const isMatch = await bcrypt.compare(otp, userRef.otp)
 
-    const otpCreatedAt = userDoc.data().otpCreatedAt.toDate();
+    if(!isMatch) return res.status(400).json({ message: "Invalid OTP" });
+
+    const otpCreatedAt = userRef.otpCreatedAt.toDate();
     const now = new Date();
     const otpExpiration = new Date(otpCreatedAt.getTime() + 10 * 60 * 1000);
-    if (now > otpExpiration) {
-      res.status(400).json({ message: "OTP expired" });
-    }
-
+    if(now > otpExpiration) return res.status(400).json({ message: "OTP expired" });
     await db.collection("users").doc(userDoc.id).update({
       isVerified: true,
       otp: null,
       otpCreatedAt: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
-
-    res.status(200).json({ message: "Account verified successfully" });
+  
+    res.status(200).json({ message: "Account verified successfully", id: userDoc.id});
+    
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -166,43 +156,35 @@ const verifyOtp = async (req, res) => {
 const generateNewOtp = async (req, res) => {
   try {
     const { email } = req.body;
-    const userSnapshot = await db
-      .collection("users")
-      .where("email", "==", email)
-      .get();
+    const userSnapshot = await db.collection("users").where("email", "==", email).get();
+    let saltRounds = 12
 
-    if (userSnapshot.empty) {
-      res.status(400).json({ Message: "Incorrect email" });
-    }
+    if(userSnapshot.empty) return res.status(400).json({ message: "Incorrect email" });
 
     const userDoc = userSnapshot.docs[0];
+    const userRef = userDoc.data();
 
-    if (userDoc.data().isVerified !== false) {
-      res.status(400).json({ Message: "Account already verified" });
-    }
+    if(userRef.isVerified !== false) return res.status(400).json({ message: "Account already verified" });
     const otp = generateOTP();
+    const hashedOtp = await bcrypt.hash(otp, saltRounds);
+    console.log(otp);
+    
     await db.collection("users").doc(userDoc.id).update({
-      otp: otp,
+      otp: hashedOtp,
       otpCreatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    const dataToSend = {
-      otp,
-      email,
-    };
-
-    const emailResponse = await sendEmail(dataToSend);
-
-    if (emailResponse == null) {
-      res.status(400).json({
-        message: "Something went wrong. Unable to complete registration",
-      });
-    }
-    if (emailResponse === "Success") {
-      res.status(200).json({ Message: `Otp has been sent to ${email}` });
-    }
+    // const dataToSend = {
+    //   otp,
+    //   email,
+    // };
+    // const emailResponse = await sendEmail(dataToSend);
+    // if(emailResponse == null) return res.status(400).json({message: "Something went wrong. Unable to complete registration"});
+    // if (emailResponse === "Success") {}
+    res.status(200).json({ message: `Otp has been sent to ${email}` });
   } catch (error) {
-    res.status(400).json({ Message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
