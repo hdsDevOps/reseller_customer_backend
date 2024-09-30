@@ -1,1 +1,0 @@
-# hordanso Googlereseller Customer Backend
