@@ -168,4 +168,94 @@ router.post('/delete_setting', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /home/api/v1/add_staff:
+ *   post:
+ *     summary: Add new staff from customer portal
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - first_name
+ *               - last_name
+ *               - email
+ *               - phone_no
+ *               - user_type_id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Customer ID
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone_no:
+ *                 type: string
+ *               user_type_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Staff added successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/add_staff', async (req, res) => {
+  try {
+    const result = await homeService.addStaff(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error adding staff", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/staff_list:
+ *   post:
+ *     summary: Get existing staff list for a customer
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - user_type_id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Customer ID
+ *               user_type_id:
+ *                 type: string
+ *               search_text:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Staff list retrieved successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/staff_list', async (req, res) => {
+  try {
+    const result = await homeService.getStaffList(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving staff list", error: error.message });
+  }
+});
+
 module.exports = router;

@@ -167,10 +167,108 @@ async function deleteSetting(data) {
   }
 }
 
+async function addStaff(data) {
+  try {
+    // Input validation
+    if (!data.id || !data.first_name || !data.last_name || !data.email || !data.phone_no || !data.user_type_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    // Check if email already exists
+    const emailCheck = await db.collection("users")
+      .where("email", "==", data.email)
+      .get();
+
+    if (!emailCheck.empty) {
+      return { status: 400, message: "Email already exists" };
+    }
+
+    // Create new staff document
+    const newStaff = {
+      customer_id: data.id,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone_no: data.phone_no,
+      user_type_id: data.user_type_id,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await db.collection("users").add(newStaff);
+
+    // Send welcome email
+    const emailData = {
+      email: data.email,
+      subject: "Welcome to Our Platform",
+      body: `
+        <h2>Welcome ${data.first_name} ${data.last_name}!</h2>
+        <p>Your account has been created successfully.</p>
+        <p>Please contact your administrator for login credentials.</p>
+      `,
+    };
+
+    await sendmail(emailData);
+
+    return {
+      status: 200,
+      message: "Staff added successfully",
+      id: docRef.id,
+    };
+  } catch (error) {
+    console.error("Error in addStaff:", error);
+    return {
+      status: 500,
+      message: "Error adding staff",
+      error: error.message,
+    };
+  }
+}
+
+async function getStaffList(data) {
+  try {
+    if (!data.id || !data.user_type_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    let query = db.collection("users")
+      .where("customer_id", "==", data.id)
+      .where("user_type_id", "==", data.user_type_id);
+
+    // Search functionality if search_text is provided
+    if (data.search_text) {
+      const searchText = data.search_text.toLowerCase();
+      query = query.where("searchableIndex", "array-contains", searchText);
+    }
+
+    const staffSnapshot = await query.get();
+
+    const staffList = staffSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      created_at: doc.data().created_at ? doc.data().created_at.toDate() : null,
+    }));
+
+    return {
+      status: 200,
+      message: "Staff list retrieved successfully",
+      data: staffList,
+    };
+  } catch (error) {
+    console.error("Error in getStaffList:", error);
+    return {
+      status: 500,
+      message: "Error retrieving staff list",
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   submitContactForm,
   getSettings,
   addSetting,
   editSetting,
   deleteSetting,
+  addStaff,
+  getStaffList,
 };
