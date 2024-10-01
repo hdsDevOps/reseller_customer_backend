@@ -2,25 +2,44 @@
 const express = require("express"); // Import the Express module
 const app = express();
 const PORT = 7002; // Set the port number for the server
-var cors = require('cors');
+var cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+// Import routes
+const adminCredentialsRoute = require("./routes/loginroute.js");
+const customerRoute = require('./routes/customerroute');
+const homeRoute = require('./routes/homeroute');
+
+
 app.use(cors());
-const adminCredentialsRoute  = require('./routes/loginroute.js');
 app.use(express.json());
 app.use(
-    express.urlencoded({
-      extended: true,
-    })
-  );
-app.get('/customerservices',(req,res)=>{
-    res.send("We are calling customer users API");
-})
+  express.urlencoded({
+    extended: true,
+  })
+);
 
-app.get('/customerservices/test',(req,res)=>{
-    res.send("We Are Calling User Test API");
-})
+// Routes
+app.get("/", (req, res) => {
+  res.redirect("/api-docs");
+});
 
-app.use('/customer',adminCredentialsRoute);
+app.get("/customerservices", (req, res) => {
+  res.send("We are calling customer users API");
+});
+
+app.get("/customerservices/test", (req, res) => {
+  res.send("We Are Calling User Test API");
+});
+
+app.use('/customer', adminCredentialsRoute);
+app.use('/customer/api/v1', customerRoute);
+app.use('/home/api/v1', homeRoute);
+
+// Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Start the server and listen on the specified port
-app.listen(PORT,()=>{
-    console.log("Calling customer Services");
-})
+app.listen(PORT, () => {
+  console.log("Calling customer Services");
+});
