@@ -258,4 +258,301 @@ router.post('/staff_list', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /home/api/v1/edit_staff:
+ *   post:
+ *     summary: Edit an existing staff record from customer portal
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - first_name
+ *               - last_name
+ *               - email
+ *               - phone_no
+ *               - user_type_id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Record ID
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone_no:
+ *                 type: string
+ *               user_type_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Staff record updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Staff record not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/edit_staff', async (req, res) => {
+  try {
+    const result = await homeService.editStaff(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error editing staff", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/delete_staff:
+ *   post:
+ *     summary: Delete an existing staff record from customer portal
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Record ID
+ *     responses:
+ *       200:
+ *         description: Staff record deleted successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Staff record not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/delete_staff', async (req, res) => {
+  try {
+    const result = await homeService.deleteStaff(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error deleting staff", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/getpaymentmethod:
+ *   get:
+ *     summary: Get available Payment methods list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: Payment methods retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/getpaymentmethod', async (req, res) => {
+  try {
+    const result = await homeService.getPaymentMethods();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving payment methods", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/updatepaymentmethod:
+ *   post:
+ *     summary: Update payment method against a customer
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - payment_method_id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Customer ID
+ *               payment_method_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Payment method updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/updatepaymentmethod', async (req, res) => {
+  try {
+    const result = await homeService.updatePaymentMethod(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error updating payment method", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/getbillinghistory:
+ *   post:
+ *     summary: Get all billing history list against a particular customer
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - start_date
+ *               - end_date
+ *               - domain
+ *               - page_no
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Customer ID
+ *               start_date:
+ *                 type: string
+ *                 format: date
+ *               end_date:
+ *                 type: string
+ *                 format: date
+ *               domain:
+ *                 type: string
+ *               page_no:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Billing history retrieved successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/getbillinghistory', async (req, res) => {
+  try {
+    const result = await homeService.getBillingHistory(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving billing history", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/downloadbillinghistory:
+ *   post:
+ *     summary: Download a billing history against a particular customer record
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Record ID
+ *     responses:
+ *       200:
+ *         description: Billing history downloaded successfully
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Record not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/downloadbillinghistory', async (req, res) => {
+  try {
+    const result = await homeService.downloadBillingHistory(req.body);
+    if (result.status === 200) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=billing_history_${req.body.id}.pdf`);
+      res.send(result.data);
+    } else {
+      res.status(result.status).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error downloading billing history", error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /home/api/v1/exportbillinghistory:
+ *   post:
+ *     summary: Export all billing history against a particular customer
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Customer ID
+ *     responses:
+ *       200:
+ *         description: Billing history exported successfully
+ *         content:
+ *           application/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/exportbillinghistory', async (req, res) => {
+  try {
+    const result = await homeService.exportBillingHistory(req.body);
+    if (result.status === 200) {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=billing_history_${req.body.id}.csv`);
+      res.send(result.data);
+    } else {
+      res.status(result.status).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error exporting billing history", error: error.message });
+  }
+});
+
 module.exports = router;

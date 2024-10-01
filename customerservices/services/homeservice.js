@@ -170,12 +170,20 @@ async function deleteSetting(data) {
 async function addStaff(data) {
   try {
     // Input validation
-    if (!data.id || !data.first_name || !data.last_name || !data.email || !data.phone_no || !data.user_type_id) {
+    if (
+      !data.id ||
+      !data.first_name ||
+      !data.last_name ||
+      !data.email ||
+      !data.phone_no ||
+      !data.user_type_id
+    ) {
       return { status: 400, message: "Missing required fields" };
     }
 
     // Check if email already exists
-    const emailCheck = await db.collection("users")
+    const emailCheck = await db
+      .collection("users")
       .where("email", "==", data.email)
       .get();
 
@@ -230,7 +238,8 @@ async function getStaffList(data) {
       return { status: 400, message: "Missing required fields" };
     }
 
-    let query = db.collection("users")
+    let query = db
+      .collection("users")
       .where("customer_id", "==", data.id)
       .where("user_type_id", "==", data.user_type_id);
 
@@ -242,7 +251,7 @@ async function getStaffList(data) {
 
     const staffSnapshot = await query.get();
 
-    const staffList = staffSnapshot.docs.map(doc => ({
+    const staffList = staffSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       created_at: doc.data().created_at ? doc.data().created_at.toDate() : null,
@@ -263,6 +272,182 @@ async function getStaffList(data) {
   }
 }
 
+async function editStaff(data) {
+  try {
+    if (
+      !data.id ||
+      !data.first_name ||
+      !data.last_name ||
+      !data.email ||
+      !data.phone_no ||
+      !data.user_type_id
+    ) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const staffRef = db.collection("users").doc(data.id);
+    const doc = await staffRef.get();
+
+    if (!doc.exists) {
+      return { status: 404, message: "Staff record not found" };
+    }
+
+    await staffRef.update({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone_no: data.phone_no,
+      user_type_id: data.user_type_id,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      status: 200,
+      message: "Staff record updated successfully",
+    };
+  } catch (error) {
+    console.error("Error in editStaff:", error);
+    return {
+      status: 500,
+      message: "Error updating staff record",
+      error: error.message,
+    };
+  }
+}
+
+async function deleteStaff(data) {
+  try {
+    if (!data.id) {
+      return { status: 400, message: "Missing staff ID" };
+    }
+
+    const staffRef = db.collection("users").doc(data.id);
+    const doc = await staffRef.get();
+
+    if (!doc.exists) {
+      return { status: 404, message: "Staff record not found" };
+    }
+
+    await staffRef.delete();
+
+    return {
+      status: 200,
+      message: "Staff record deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error in deleteStaff:", error);
+    return {
+      status: 500,
+      message: "Error deleting staff record",
+      error: error.message,
+    };
+  }
+}
+
+async function getPaymentMethods() {
+  try {
+    const paymentMethodsSnapshot = await db.collection("payment_methods").get();
+    const paymentMethods = paymentMethodsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      status: 200,
+      message: "Payment methods retrieved successfully",
+      data: paymentMethods,
+    };
+  } catch (error) {
+    console.error("Error in getPaymentMethods:", error);
+    return {
+      status: 500,
+      message: "Error retrieving payment methods",
+      error: error.message,
+    };
+  }
+}
+
+async function updatePaymentMethod(data) {
+  try {
+    if (!data.id || !data.payment_method_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.id);
+    const doc = await customerRef.get();
+
+    if (!doc.exists) {
+      return { status: 404, message: "Customer not found" };
+    }
+
+    await customerRef.update({
+      payment_method_id: data.payment_method_id,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      status: 200,
+      message: "Payment method updated successfully",
+    };
+  } catch (error) {
+    console.error("Error in updatePaymentMethod:", error);
+    return {
+      status: 500,
+      message: "Error updating payment method",
+      error: error.message,
+    };
+  }
+}
+
+async function getBillingHistory(data) {
+  try {
+    if (
+      !data.id ||
+      !data.start_date ||
+      !data.end_date ||
+      !data.domain ||
+      !data.page_no
+    ) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const pageSize = 10; // Adjust as needed
+    const startAt = (data.page_no - 1) * pageSize;
+
+    let query = db
+      .collection("billing_history")
+      .where("customer_id", "==", data.id)
+      .where("domain", "==", data.domain)
+      .where("date", ">=", new Date(data.start_date))
+      .where("date", "<=", new Date(data.end_date))
+      .orderBy("date", "desc")
+      .limit(pageSize)
+      .offset(startAt);
+
+    const billingHistorySnapshot = await query.get();
+    const billingHistory = billingHistorySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate(),
+    }));
+
+    return {
+      status: 200,
+      message: "Billing history retrieved successfully",
+      data: billingHistory,
+      page: data.page_no,
+      pageSize: pageSize,
+    };
+  } catch (error) {
+    console.error("Error in getBillingHistory:", error);
+    return {
+      status: 500,
+      message: "Error retrieving billing history",
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   submitContactForm,
   getSettings,
@@ -271,4 +456,11 @@ module.exports = {
   deleteSetting,
   addStaff,
   getStaffList,
+  editStaff,
+  deleteStaff,
+  getPaymentMethods,
+  updatePaymentMethod,
+  getBillingHistory,
 };
+
+
