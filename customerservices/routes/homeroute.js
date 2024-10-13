@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const homeService = require('../services/homeservice');
+const { verifyToken } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ router.post('/contactform', async (req, res) => {
  *       400:
  *         description: Bad request
  */
-router.post('/settings', async (req, res) => {
+router.post('/settings', verifyToken, async (req, res) => {
   const result = await homeService.getSettings(req.body);
   res.status(result.status).json(result);
 });
@@ -107,7 +108,7 @@ router.post('/settings', async (req, res) => {
  *       400:
  *         description: Bad request
  */
-router.post('/addsetting', async (req, res) => {
+router.post('/addsetting', verifyToken, async (req, res) => {
   const result = await homeService.addSetting(req.body);
   res.status(result.status).json(result);
 });
@@ -135,7 +136,7 @@ router.post('/addsetting', async (req, res) => {
  *       400:
  *         description: Bad request
  */
-router.post('/edit_setting', async (req, res) => {
+router.post('/edit_setting', verifyToken, async (req, res) => {
   const result = await homeService.editSetting(req.body);
   res.status(result.status).json(result);
 });
@@ -163,7 +164,7 @@ router.post('/edit_setting', async (req, res) => {
  *       400:
  *         description: Bad request
  */
-router.post('/delete_setting', async (req, res) => {
+router.post('/delete_setting', verifyToken, async (req, res) => {
   const result = await homeService.deleteSetting(req.body);
   res.status(result.status).json(result);
 });
@@ -209,7 +210,7 @@ router.post('/delete_setting', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/add_staff', async (req, res) => {
+router.post('/add_staff', verifyToken, async (req, res) => {
   try {
     const result = await homeService.addStaff(req.body);
     res.status(result.status).json(result);
@@ -249,7 +250,7 @@ router.post('/add_staff', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/staff_list', async (req, res) => {
+router.post('/staff_list', verifyToken, async (req, res) => {
   try {
     const result = await homeService.getStaffList(req.body);
     res.status(result.status).json(result);
@@ -301,7 +302,7 @@ router.post('/staff_list', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/edit_staff', async (req, res) => {
+router.post('/edit_staff',  verifyToken, async (req, res) => {
   try {
     const result = await homeService.editStaff(req.body);
     res.status(result.status).json(result);
@@ -338,7 +339,7 @@ router.post('/edit_staff', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/delete_staff', async (req, res) => {
+router.post('/delete_staff',  verifyToken, async (req, res) => {
   try {
     const result = await homeService.deleteStaff(req.body);
     res.status(result.status).json(result);

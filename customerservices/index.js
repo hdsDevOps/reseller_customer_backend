@@ -9,6 +9,8 @@ const swaggerSpec = require("./swagger");
 const adminCredentialsRoute = require("./routes/loginroute.js");
 const customerRoute = require('./routes/customerroute');
 const homeRoute = require('./routes/homeroute');
+const userRoute = require('./routes/userroute');
+const settingRoute = require('./routes/settingroute');
 
 
 app.use(cors());
@@ -35,6 +37,9 @@ app.get("/customerservices/test", (req, res) => {
 app.use('/customer', adminCredentialsRoute);
 app.use('/customer/api/v1', customerRoute);
 app.use('/home/api/v1', homeRoute);
+app.use('/user/api/v1', userRoute);
+app.use('/setting/api/v1', settingRoute);
+
 
 // Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

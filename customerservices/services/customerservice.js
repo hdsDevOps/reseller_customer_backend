@@ -1,3 +1,4 @@
+//services/customerservice.js
 const { admin, db } = require("../firebaseConfig");
 const {
   generateOTP,
@@ -118,6 +119,40 @@ async function verifyOTP(data) {
   }
 }
 
+async function verifyLoginOTP(data) {
+  try {
+    if (!data.customer_id || !data.otp) {
+      return { status: 400, message: "Missing customer ID or OTP" };
+    }
+
+    const otpDoc = await db.collection("otps").doc(data.customer_id).get();
+
+    if (!otpDoc.exists) {
+      return { status: 400, message: "Invalid OTP or customer ID" };
+    }
+
+    const otpData = otpDoc.data();
+    const now = admin.firestore.Timestamp.now();
+    const otpCreationTime = otpData.createdAt;
+
+    if (now.seconds - otpCreationTime.seconds > 600) {
+      return { status: 400, message: "OTP has expired" };
+    }
+
+    if (otpData.otp === data.otp) {
+      await db.collection("otps").doc(data.customer_id).delete();
+      const customToken = await admin.auth().createCustomToken(data.customer_id);
+      return { status: 200, message: "Login successful", token: customToken };
+    } else {
+      return { status: 400, message: "Invalid OTP" };
+    }
+  } catch (error) {
+    console.error("Error in verifyLoginOTP:", error);
+    return { status: 500, message: "Error verifying OTP", error: error.message };
+  }
+}
+
+
 async function loginCustomer(data) {
   try {
     if (!data.email || !data.password) {
@@ -137,13 +172,6 @@ async function loginCustomer(data) {
     const customerData = customerDoc.docs[0].data();
     const customerId = customerDoc.docs[0].id;
 
-    if (!customerData.isVerified) {
-      return {
-        status: 400,
-        message: "Account not verified. Please verify your email first.",
-      };
-    }
-
     const isValidPassword = verifyPassword(
       data.password,
       customerData.salt,
@@ -151,9 +179,19 @@ async function loginCustomer(data) {
     );
 
     if (isValidPassword) {
-      // Generate a custom token for the user
-      const customToken = await admin.auth().createCustomToken(customerId);
-      return { status: 200, message: "Login successful", token: customToken };
+      const otp = generateOTP();
+      await db.collection("otps").doc(customerId).set({
+        otp: otp,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      await sendOTPEmail(data.email, otp);
+
+      return { 
+        status: 200, 
+        message: "Login successful. Please check your email for OTP.",
+        customer_id: customerId
+      };
     } else {
       return { status: 400, message: "Invalid email or password" };
     }
@@ -163,8 +201,153 @@ async function loginCustomer(data) {
   }
 }
 
+async function requestPasswordReset(data) {
+  try {
+    if (!data.email) {
+      return { status: 400, message: "Missing email" };
+    }
+
+    const customerDoc = await db
+      .collection("customers")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      return { status: 400, message: "Email not found" };
+    }
+
+    const customerId = customerDoc.docs[0].id;
+    const otp = generateOTP();
+
+    await db.collection("password_reset_otps").doc(customerId).set({
+      otp: otp,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await sendOTPEmail(data.email, otp);
+
+    return { status: 200, message: "Password reset OTP sent to your email" };
+  } catch (error) {
+    console.error("Error in requestPasswordReset:", error);
+    return { status: 500, message: "Error requesting password reset", error: error.message };
+  }
+}
+
+async function resendForgetPasswordOTP(data) {
+  try {
+    if (!data.email) {
+      return { status: 400, message: "Missing email" };
+    }
+
+    const customerDoc = await db
+      .collection("customers")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      return { status: 400, message: "Email not found" };
+    }
+
+    const customerId = customerDoc.docs[0].id;
+    const otp = generateOTP();
+
+    await db.collection("password_reset_otps").doc(customerId).set({
+      otp: otp,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await sendOTPEmail(data.email, otp);
+
+    return { status: 200, message: "New password reset OTP sent to your email" };
+  } catch (error) {
+    console.error("Error in resendForgetPasswordOTP:", error);
+    return { status: 500, message: "Error resending OTP", error: error.message };
+  }
+}
+
+async function verifyForgetPasswordOTP(data) {
+  try {
+    if (!data.email || !data.otp) {
+      return { status: 400, message: "Missing email or OTP" };
+    }
+
+    const customerDoc = await db
+      .collection("customers")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      return { status: 400, message: "Email not found" };
+    }
+
+    const customerId = customerDoc.docs[0].id;
+    const otpDoc = await db.collection("password_reset_otps").doc(customerId).get();
+
+    if (!otpDoc.exists) {
+      return { status: 400, message: "Invalid OTP" };
+    }
+
+    const otpData = otpDoc.data();
+    const now = admin.firestore.Timestamp.now();
+    const otpCreationTime = otpData.createdAt;
+
+    if (now.seconds - otpCreationTime.seconds > 600) {
+      return { status: 400, message: "OTP has expired" };
+    }
+
+    if (otpData.otp === data.otp) {
+      await db.collection("password_reset_otps").doc(customerId).delete();
+      return { status: 200, message: "OTP verified successfully" };
+    } else {
+      return { status: 400, message: "Invalid OTP" };
+    }
+  } catch (error) {
+    console.error("Error in verifyForgetPasswordOTP:", error);
+    return { status: 500, message: "Error verifying OTP", error: error.message };
+  }
+}
+
+async function resetPassword(data) {
+  try {
+    if (!data.email || !data.password) {
+      return { status: 400, message: "Missing email or password" };
+    }
+
+    const customerDoc = await db
+      .collection("customers")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      return { status: 400, message: "Email not found" };
+    }
+
+    const customerId = customerDoc.docs[0].id;
+    const { salt, hash } = hashPassword(data.password);
+
+    await db.collection("customers").doc(customerId).update({
+      salt: salt,
+      passwordHash: hash,
+    });
+
+    return { status: 200, message: "Password reset successfully" };
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    return { status: 500, message: "Error resetting password", error: error.message };
+  }
+}
+
 module.exports = {
   registerCustomer,
   verifyOTP,
   loginCustomer,
+  verifyLoginOTP,
+  requestPasswordReset,
+  resendForgetPasswordOTP,
+  verifyForgetPasswordOTP,
+  resetPassword,
 };
