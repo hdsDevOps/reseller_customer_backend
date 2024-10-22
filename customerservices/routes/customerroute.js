@@ -90,7 +90,7 @@ router.post('/login', async (req, res) => {
 router.post('/registration', async (req, res) => {
   const result = await customerService.registerCustomer(req.body);
   // res.status(result.status).json(result);
-  res.status(result.status).json({status: result.status, message: result.message, userId: result.userId });
+  res.status(result.status).json({status: result.status, message: result.message, customer_id: result.userId });
 });
 
 

@@ -142,7 +142,13 @@ async function verifyLoginOTP(data) {
     if (otpData.otp === data.otp) {
       await db.collection("otps").doc(data.customer_id).delete();
       const customToken = await admin.auth().createCustomToken(data.customer_id);
-      return { status: 200, message: "Login successful", token: customToken };
+
+      const customerRef = db.collection('customers').doc(data.customer_id);
+      const doc = await customerRef.get();
+      const customerDoc = doc.data();
+      const { passwordHash, ...customerData } = customerDoc;
+
+      return { status: 200, message: "Login successful", token: customToken,customerData };
     } else {
       return { status: 400, message: "Invalid OTP" };
     }
