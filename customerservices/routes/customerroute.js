@@ -5,7 +5,7 @@ const customerService = require('../services/customerservice');
 
 /**
  * @swagger
- * /customer/api/v1/login:
+ * /customerservices/customer/api/v1/login:
  *   post:
  *     summary: Login to customer portal
  *     tags: [Customer]
@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * @swagger
- * /customer/api/v1/registration:
+ * /customerservices/customer/api/v1/registration:
  *   post:
  *     summary: Register new customer
  *     tags: [Customer]
@@ -90,7 +90,7 @@ router.post('/login', async (req, res) => {
 router.post('/registration', async (req, res) => {
   const result = await customerService.registerCustomer(req.body);
   // res.status(result.status).json(result);
-  res.status(result.status).json({ message: result.message, userId: result.userId });
+  res.status(result.status).json({status: result.status, message: result.message, userId: result.userId });
 });
 
 
@@ -184,9 +184,6 @@ router.post('/forgetpassword', async (req, res) => {
   const result = await customerService.requestPasswordReset(req.body);
   res.status(result.status).json(result);
 });
-
-
-
 
 /**
  * @swagger
