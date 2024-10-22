@@ -190,7 +190,8 @@ async function loginCustomer(data) {
       return { 
         status: 200, 
         message: "Login successful. Please check your email for OTP.",
-        customer_id: customerId
+        customer_id: customerId,
+        otp: otp
       };
     } else {
       return { status: 400, message: "Invalid email or password" };

@@ -4,9 +4,6 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const crypto = require('crypto');
 
-
-
-
 function getOffset(currentPage = 1, listPerPage) {
   return (currentPage - 1) * [listPerPage];
 }
@@ -356,11 +353,11 @@ async function sendmail(req, res, next){
   }
 
   function generateOTP() {
-    console.log(Math.floor(100000 + Math.random() * 900000).toString());
-    return Math.floor(100000 + Math.random() * 900000).toString();
+   // console.log(Math.floor(10000 + Math.random() * 90000).toString());
+    return Math.floor(10000 + Math.random() * 90000).toString();
   }
   
-  async function sendOTPEmail(email, otp) {
+  async function sendOTPEmail(email, otp) {    
     const mailOptions = {
       from: process.env.MAILUSER,
       to: email,

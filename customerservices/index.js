@@ -11,6 +11,7 @@ const customerRoute = require('./routes/customerroute');
 const homeRoute = require('./routes/homeroute');
 const userRoute = require('./routes/userroute');
 const settingRoute = require('./routes/settingroute');
+require('dotenv').config();
 
 
 app.use(cors());
@@ -34,11 +35,11 @@ app.get("/customerservices/test", (req, res) => {
   res.send("We Are Calling User Test API");
 });
 
-app.use('/customer', adminCredentialsRoute);
-app.use('/customer/api/v1', customerRoute);
-app.use('/home/api/v1', homeRoute);
-app.use('/user/api/v1', userRoute);
-app.use('/setting/api/v1', settingRoute);
+app.use('/customerservices/customer', adminCredentialsRoute);
+app.use('/customerservices/customer/api/v1', customerRoute);
+app.use('/customerservices/home/api/v1', homeRoute);
+app.use('/customerservices/user/api/v1', userRoute);
+app.use('/customerservices/setting/api/v1', settingRoute);
 
 
 // Swagger UI
