@@ -1,10 +1,8 @@
+//helper.js
 const path = require("path");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
-var request = require('request');
-const urlencode = require("urlencode");
-
-
+const crypto = require('crypto');
 
 function getOffset(currentPage = 1, listPerPage) {
   return (currentPage - 1) * [listPerPage];
@@ -353,10 +351,63 @@ async function sendmail(req, res, next){
   
     return firstLetters;
   }
+
+  function generateOTP() {
+   // console.log(Math.floor(10000 + Math.random() * 90000).toString());
+    return Math.floor(10000 + Math.random() * 90000).toString();
+  }
+  
+  async function sendOTPEmail(email, otp) {    
+    const mailOptions = {
+      from: process.env.MAILUSER,
+      to: email,
+      subject: 'Your OTP for Registration',
+      html: `<p>Your OTP for registration is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`
+    };
+  
+    return new Promise((resolve, reject) => {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP,
+        port: 587,
+        auth: {
+          user: process.env.MAILUSER,
+          pass: process.env.MAILPASS
+        }
+      });
+  
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending OTP email:', error);
+          reject(error);
+        } else {
+          console.log('OTP email sent:', info.response);
+          resolve(info);
+        }
+      });
+    });
+  }
+  
+  function hashPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return { salt, hash };
+  }
+  
+  function verifyPassword(password, salt, storedHash) {
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return storedHash === hash;
+  }
+
+
 module.exports = {
   getOffset,
   emptyOrRows,
   file_upload,
   sendmail,
-  getFirstLetters
+  getFirstLetters,
+  generateOTP,
+  sendOTPEmail,
+  hashPassword,
+  verifyPassword
 }
