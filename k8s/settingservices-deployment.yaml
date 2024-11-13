@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-settingapi-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-settingapi-service
+  template:
+    metadata:
+      labels:
+        app: backend-settingapi-service
+    spec:
+      containers:
+      - name: backend-settingapi-service
+        image: hordansodevops/reseller_customer_backend_settingservices:latest
+        ports:
+        - containerPort: 7004
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: settingservices-config

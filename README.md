@@ -1,1 +1,1 @@
-# reseller_customer_backend
+# hordanso Googlereseller Customer Backend

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-userapi-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-userapi-service
+  template:
+    metadata:
+      labels:
+        app: backend-userapi-service
+    spec:
+      containers:
+      - name: backend-userapi-service
+        image: hordansodevops/reseller_customer_backend_userservices:latest
+        ports:
+        - containerPort: 7001
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: userservices-config
