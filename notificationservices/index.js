@@ -2,7 +2,7 @@
 const express = require("express"); // Import the Express module
 const app = express();
 const PORT = 7005; // Set the port number for the server
-
+  
 app.get('/notificationservices',(req,res)=>{
     res.send("We are calling notification services API");
 })
