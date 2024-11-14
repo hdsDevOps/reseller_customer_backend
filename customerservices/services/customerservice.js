@@ -204,6 +204,7 @@ async function loginCustomer(data) {
       status: 200,
       message: "Login successful. Please check your email for OTP.",
       customer_id: customerId,
+      otp:otp
     };
   } catch (error) {
     console.error("Error in loginCustomer:", error);
