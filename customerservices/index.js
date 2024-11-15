@@ -40,7 +40,7 @@ app.use('/customerservices/home/api/v1', homeRoute);
 app.use('/customerservices/user/api/v1', userRoute);
 app.use('/customerservices/setting/api/v1', settingRoute);
 
-
+  
 // Swagger UI
 app.use("/customerservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
