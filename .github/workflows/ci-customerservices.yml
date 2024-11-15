@@ -10,11 +10,6 @@ on:
 
 env:
   DOCKER_IMAGE: hordansodevops/reseller_customer_backend_customerservices
-  APITOKEN: AIzaSyBDhOqLuQygzeZL-V1xqJkW37kpfiyHrgA
-  CRYPTOTOKEN: RMC20zWsjodRWzCacXasuGcJxXoLDvmHD2fctZwHs7eEUNVgaXKY7HfzA6F1
-  SERVICE: gmail
-  USER: saunak.bhattacharya@schemaphic.com
-  PASSWORD: saunak@123
 
 jobs:
   build_and_deploy:

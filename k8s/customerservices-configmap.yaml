@@ -4,3 +4,8 @@ metadata:
   name: customerservices-config
 data:
   BASE_URL: "https://customerapi.customer.gworkspace.withhordanso.com"
+  APITOKEN: AIzaSyBDhOqLuQygzeZL-V1xqJkW37kpfiyHrgA
+  CRYPTOTOKEN: RMC20zWsjodRWzCacXasuGcJxXoLDvmHD2fctZwHs7eEUNVgaXKY7HfzA6F1
+  SERVICE: gmail
+  USER: saunak.bhattacharya@schemaphic.com
+  PASSWORD: saunak@123
