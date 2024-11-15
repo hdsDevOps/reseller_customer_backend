@@ -44,7 +44,7 @@ app.use('/customerservices/setting/api/v1', settingRoute);
 // Swagger UI
 app.use("/customerservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  
+    
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
