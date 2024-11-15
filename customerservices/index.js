@@ -12,8 +12,7 @@ const customerRoute = require('./routes/customerroute');
 const homeRoute = require('./routes/homeroute');
 const userRoute = require('./routes/userroute');
 const settingRoute = require('./routes/settingroute');
-require('dotenv').config();
-                              
+                                
 app.use(cors());
 app.use(express.json());
 app.use(
