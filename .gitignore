@@ -21,35 +21,7 @@
 /voucherservices/node_modules
 
 
-#FIRE STORE
-/customerservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
 
-/googleservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-/homeservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-/notificationservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-
-/paymentservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-/reportservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-/settingservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-
-/subscriptionservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-/userservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-/voucherservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
-
-/customerservices/dev-hds-gworkspace-firebase-adminsdk-6ke7i-aab97fb726.json
 
 /.pnp
 .pnp.js
