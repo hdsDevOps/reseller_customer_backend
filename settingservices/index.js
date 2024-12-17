@@ -10,7 +10,7 @@ require("dotenv").config();
 const settingRoute = require('./routes/settingroute');
 require('dotenv').config();
 
-         
+            
 app.use(cors());
 app.use(express.json());
 app.use(
