@@ -78,7 +78,7 @@ yarn-error.log*
 
 /reseller_customer_backend/customerservices/node_modules
 /reseller_customer_backend/adminservices
-k8s/
+
 
 
 
