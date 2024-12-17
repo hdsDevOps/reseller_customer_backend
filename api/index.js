@@ -3,7 +3,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');  // Import t
 const PORT = 7000;  // Set the port number for the server
 var cors = require('cors');
 const app = express();
-
+   
 // CORS setup
 app.use(cors({
     origin: '*',  // Dynamic CORS setup
