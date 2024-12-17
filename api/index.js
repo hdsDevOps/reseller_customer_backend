@@ -10,7 +10,7 @@ app.use(cors({
     methods: 'GET, POST',
     credentials: true,  // Allow cookies and authentication headers
 }));
-         
+             
 // Define the routes for the microservices
 const routes = {
     '/userservices': "https://userapi.customer.gworkspace.withhordanso.com",
