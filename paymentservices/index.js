@@ -12,7 +12,7 @@ const homeRoute = require('./routes/homeroute');
 
 require('dotenv').config();
   
-  
+    
 app.use(cors());
 app.use(express.json());
 app.use(
