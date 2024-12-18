@@ -12,7 +12,8 @@ const customerRoute = require('./routes/customerroute');
 const homeRoute = require('./routes/homeroute');
 const userRoute = require('./routes/userroute');
 const settingRoute = require('./routes/settingroute');
-                                
+const domainroute = require('./routes/domainroute');
+
 app.use(cors());
 app.use(express.json());
 app.use(
@@ -20,7 +21,7 @@ app.use(
     extended: true,
   })
 );
-  
+
 // Routes
 app.get("/", (req, res) => {
   res.redirect("/api-docs");
@@ -39,12 +40,13 @@ app.use('/customerservices/customer/api/v1', customerRoute);
 app.use('/customerservices/home/api/v1', homeRoute);
 app.use('/customerservices/user/api/v1', userRoute);
 app.use('/customerservices/setting/api/v1', settingRoute);
+app.use('/customerservices/domain/api/v1', domainroute);
 
-  
+
 // Swagger UI
 app.use("/customerservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-    
+
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
