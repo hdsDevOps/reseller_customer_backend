@@ -447,6 +447,31 @@ async function getBillingHistory(data) {
     };
   }
 }
+async function getsubscriptiondata(data) {
+  try {   
+    let query = db
+      .collection("subscription_plans");
+
+    const subscription = await query.get();
+    const subscriptionData = subscription.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),      
+    }));
+
+    return {
+      status: 200,
+      message: "subscription data retrieved successfully",
+      data: subscriptionData     
+    };
+  } catch (error) {
+    console.error("Error in getsubscriptiondata:", error);
+    return {
+      status: 500,
+      message: "Error retrieving subscription data",
+      error: error.message,
+    };
+  }
+}
 
 module.exports = {
   submitContactForm,
@@ -461,6 +486,7 @@ module.exports = {
   getPaymentMethods,
   updatePaymentMethod,
   getBillingHistory,
+  getsubscriptiondata
 };
 
 

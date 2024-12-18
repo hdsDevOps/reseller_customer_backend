@@ -556,4 +556,22 @@ router.post('/exportbillinghistory', async (req, res) => {
   }
 });
 
+
+/**
+ * @swagger
+ * /home/api/v1//getsubscriptiondata:
+ *   get:
+ *     summary: Get available subscription data
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: subscription data retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/getsubscriptiondata', async (req, res) => {
+  const result = await homeService.getsubscriptiondata();
+  res.status(result.status).json(result);
+});
+
 module.exports = router;
