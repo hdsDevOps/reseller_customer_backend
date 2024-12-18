@@ -247,5 +247,33 @@ router.post('/reset_password', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /customer/api/v1/resed_otp:
+ *   post:
+ *     summary: Resend OTP
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customer_id              
+ *             properties:
+ *               customer_id:
+ *                 type: string            
+ *     responses:
+ *       200:
+ *         description: OTP send successfully
+ *       400:
+ *         description: Invalid request
+ */
+router.post('/resend_otp', async (req, res) => {
+  const result = await customerService.resendOTP(req.body);
+  res.status(result.status).json(result);
+});
+
 
 module.exports = router;
