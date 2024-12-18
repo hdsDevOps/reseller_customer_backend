@@ -29,6 +29,7 @@ async function registerCustomer(data) {
 
     const userRecord = await admin.auth().createUser({
       email: data.email,
+      password:data.password,
       disabled: false,
     });
 
