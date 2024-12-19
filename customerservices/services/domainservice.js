@@ -16,12 +16,13 @@ async function adddomain(data) {
       customer_id: data.customer_id,
       domain_name: data.domain_name,
       domain_type: data.domain_type,
-      subscription_id: data.subscription_id,      
-      business_email: data.business_email,      
+      subscription_id: data.subscription_id,
+      business_email: data.business_email,
       license_usage: data.license_usage,
-      plan: data.plan,      
-      payment_method: data.payment_method,      
-      domain_status: data.domain_status,      
+      plan: data.plan,
+      payment_method: data.payment_method,
+      domain_status: data.domain_status,
+      is_deleted: false,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     };
 
@@ -44,8 +45,46 @@ async function adddomain(data) {
   }
 }
 
+async function domainlist(data) {
+  try {
+    if (!data.customer_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    const domain = await db.collection("domains").where("customer_id", "=", data.customer_id).where("is_deleted", "=", false).get();
+    const domains_data = domain.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return { status: 200, msg: "Domains fetched successfully", data: domains_data };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error adding Domain",
+      error: error.message,
+    };
+  }
+}
+async function deletedomain(data) {
+  try {
+    if (!data.domain_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    await db.collection("domains").doc(data.domain_id).update({
+      is_deleted: true,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
-
+    return { status: 200, msg: "Domain deleted successfully" };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error adding Domain",
+      error: error.message,
+    };
+  }
+}
 module.exports = {
   adddomain,
+  domainlist,
+  deletedomain
 }

@@ -59,5 +59,67 @@ router.post("/adddomain", verifyToken, async (req, res) => {
 });
 
 
+/**
+ * @swagger
+ * /domain/api/v1/domain-list:
+ *   post:
+ *     summary: Get all domain for a customer
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customer_id              
+ *             properties:
+ *               customer_id:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: Domains fetched successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/domain-list", verifyToken, async (req, res) => {
+  const result = await domainService.domainlist(req.body);
+  res.status(result.status).json(result);
+});
+
+/**
+ * @swagger
+ * /domain/api/v1/delete-domain:
+ *   post:
+ *     summary: Delete domain for a customer
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id             
+ *             properties:
+ *               domain_id:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: Domain deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/delete-domain", verifyToken, async (req, res) => {
+  const result = await domainService.deletedomain(req.body);
+  res.status(result.status).json(result);
+});
+
+
+
 
 module.exports = router;
