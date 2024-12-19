@@ -153,5 +153,71 @@ router.post("/change-domain-type", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /domain/api/v1/change-domain-type:
+ *   post:
+ *     summary: Change domain type for a customer
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - renew_status             
+ *             properties:
+ *               domain_id:
+ *                 type: string                           
+ *               renew_status:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: Domain type change successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/change-renew-status", verifyToken, async (req, res) => {
+  const result = await domainService.changerenewstatus(req.body);
+  res.status(result.status).json(result);
+});
+
+/**
+ * @swagger
+ * /domain/api/v1/change-domain-type:
+ *   post:
+ *     summary: Change domain type for a customer
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - subscription_status             
+ *             properties:
+ *               domain_id:
+ *                 type: string                           
+ *               subscription_status:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: Domain type change successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/change-subscription-status", verifyToken, async (req, res) => {
+  const result = await domainService.changesubscriptionstatus(req.body);
+  res.status(result.status).json(result);
+});
+
 
 module.exports = router;

@@ -559,20 +559,34 @@ router.post('/exportbillinghistory', async (req, res) => {
 
 /**
  * @swagger
- * /home/api/v1//getsubscriptiondata:
+ * /home/api/v1/getsubscriptiondata:
  *   post:
- *     summary: Get available subscription data
+ *     summary: Get avilable subscription data
  *     tags: [Home]
- * requestBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           subscription_id:
- *             type: string (optional)
- *             
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscription_id
+ *             properties:
+ *               subscription_id:
+ *                 type: string
+ *                 description: Subscription ID
  *     responses:
  *       200:
  *         description: subscription data retrieved successfully
+ *         content:
+ *           application/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Error in getsubscriptiondata
  *       500:
  *         description: Internal server error
  */
