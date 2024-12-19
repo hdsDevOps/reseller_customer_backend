@@ -19,12 +19,15 @@ const { verifyToken } = require("../middleware/auth");
  *             type: object
  *             required:
  *               - id
+ *               - domain_id
  *             properties:
  *               id:
  *                 type: string
+ *               domain_id:
+ *                 type: string
  *     responses:
  *       200:
- *         description: List of emails for the customer
+ *         description: List of emails for the domain
  *       401:
  *         description: Unauthorized
  */

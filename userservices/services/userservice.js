@@ -3,14 +3,14 @@ const { hashPassword } = require("../helper");
 
 async function getCustomerEmails(data) {
   try {
-    if (!data.user_id) {
+    if (!data.user_id || !data.domain_id) {
       return { status: 400, message: "Missing customer ID" };
     }
 
-    const customerDoc = await db.collection("customers").doc(data.user_id).get();
+    const customerDoc = await db.collection("domains").doc(data.domain_id).get();
 
     if (!customerDoc.exists) {
-      return res.status(404).json({ error: "Customer not found" });
+      return res.status(404).json({ error: "Domain not found" });
     }
 
     const emails = customerDoc.data().emails || [];
@@ -123,8 +123,7 @@ async function resetEmailPassword(data) {
   }
 }
 async function changeemailstatus(data) {
-  try {
-    console.log("object==================",data);
+  try {    
     if (!data.domain_id || !data.email) {
       return { status: 400, message: "Missing required fields" };
     }   
