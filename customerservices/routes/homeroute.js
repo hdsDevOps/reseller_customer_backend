@@ -595,4 +595,46 @@ router.post('/getsubscriptiondata', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /home/api/v1/getpaymentmethod:
+ *   get:
+ *     summary: Get faqs list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: FAQs retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/getfaqs', async (req, res) => {
+  try {
+    const result = await homeService.getfaqs();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving faqs", error: error.message });
+  }
+});
+/**
+ * @swagger
+ * /home/api/v1/gethomedata:
+ *   get:
+ *     summary: Get data list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: data retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/gethomedata', async (req, res) => {
+  try {
+    const result = await homeService.gethomedata();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
+  }
+});
+
+
 module.exports = router;

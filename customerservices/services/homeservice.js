@@ -448,31 +448,31 @@ async function getBillingHistory(data) {
   }
 }
 async function getsubscriptiondata(data) {
-  try {   
-    let query="";
-    if(data.subscription_id!=""){
+  try {
+    let query = "";
+    if (data.subscription_id != "") {
       query = db
-      .collection("subscription_plans").doc(data.subscription_id);
-    }else{
+        .collection("subscription_plans").doc(data.subscription_id);
+    } else {
       query = db
-      .collection("subscription_plans");
+        .collection("subscription_plans");
     }
-     
+
 
     const subscription = await query.get();
-    let subscriptionData="";
-    if(data.subscription_id!=""){
-      subscriptionData=[{id:data.subscription_id,...subscription.data()}];
-    }else{
-       subscriptionData = subscription.docs.map((doc) => ({
+    let subscriptionData = "";
+    if (data.subscription_id != "") {
+      subscriptionData = [{ id: data.subscription_id, ...subscription.data() }];
+    } else {
+      subscriptionData = subscription.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),      
+        ...doc.data(),
       }));
     }
     return {
       status: 200,
       message: "subscription data retrieved successfully",
-      data: subscriptionData     
+      data: subscriptionData
     };
   } catch (error) {
     console.error("Error in getsubscriptiondata:", error);
@@ -484,6 +484,52 @@ async function getsubscriptiondata(data) {
   }
 }
 
+async function getfaqs() {
+  try {
+    const faqs = await db.collection("faqs").orderBy("order", "asc").get();
+    const faqsdata = faqs.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      status: 200,
+      message: "FAQs retrieved successfully",
+      data: faqsdata,
+    };
+  } catch (error) {
+    console.error("Error in getfaqs:", error);
+    return {
+      status: 500,
+      message: "Error retrieving FAQs",
+      error: error.message,
+    };
+  }
+}
+async function gethomedata() {
+  try {
+    let data = {};
+    const document = await db.collection("cms").get();
+    const documentdata = document.docs.reduce((acc, doc) => { 
+      acc[doc.id] = { ...doc.data() }; 
+      return acc; 
+    }, {});
+
+
+    return {
+      status: 200,
+      message: "data retrieved successfully",
+      data: documentdata,
+    };
+  } catch (error) {
+    console.error("Error in gethomedata:", error);
+    return {
+      status: 500,
+      message: "Error retrieving data",
+      error: error.message,
+    };
+  }
+}
 module.exports = {
   submitContactForm,
   getSettings,
@@ -497,7 +543,9 @@ module.exports = {
   getPaymentMethods,
   updatePaymentMethod,
   getBillingHistory,
-  getsubscriptiondata
+  getsubscriptiondata,
+  getfaqs,
+  gethomedata
 };
 
 
