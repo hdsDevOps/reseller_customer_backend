@@ -292,8 +292,10 @@ async function requestPasswordReset(data) {
       otp: otp,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    await sendOTPEmail(data.email, otp);
+    let subject = "Your OTP for reset password";
+    let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp, subject, body);
     console.log(otp);
     return { status: 200, message: "Password reset OTP sent to your email" };
   } catch (error) {
@@ -329,8 +331,10 @@ async function resendForgetPasswordOTP(data) {
       otp: otp,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    await sendOTPEmail(data.email, otp);
+    let subject = "Your OTP for reset password";
+    let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp,subject,body);
 
     return {
       status: 200,
@@ -443,7 +447,7 @@ async function resendOTP(data) {
     const customerdata = customer.data();
 
     // Check if email already exists
-    
+
     if (!customerdata) {
       return { status: 400, message: "No user found" };
     }
@@ -457,6 +461,7 @@ async function resendOTP(data) {
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
       });
     // Send OTP email
+    
     await sendOTPEmail(customerdata.email, otp);
 
     return {
