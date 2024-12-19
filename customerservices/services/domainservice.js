@@ -59,7 +59,7 @@ async function domainlist(data) {
   } catch (error) {
     return {
       status: 500,
-      message: "Error adding Domain",
+      message: "Error fetched Domain",
       error: error.message,
     };
   }
@@ -78,7 +78,26 @@ async function deletedomain(data) {
   } catch (error) {
     return {
       status: 500,
-      message: "Error adding Domain",
+      message: "Error delete domain",
+      error: error.message,
+    };
+  }
+}
+async function changedomaintype(data) {
+  try {
+    if (!data.domain_id || !data.domain_type) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    await db.collection("domains").doc(data.domain_id).update({
+      domain_type:data.domain_type,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { status: 200, msg: "Domain type changed successfully" };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error Domain type changed ",
       error: error.message,
     };
   }
@@ -86,5 +105,6 @@ async function deletedomain(data) {
 module.exports = {
   adddomain,
   domainlist,
-  deletedomain
+  deletedomain,
+  changedomaintype
 }

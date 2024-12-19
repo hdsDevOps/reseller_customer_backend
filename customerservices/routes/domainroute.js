@@ -119,7 +119,38 @@ router.post("/delete-domain", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
-
+/**
+ * @swagger
+ * /domain/api/v1/change-domain-type:
+ *   post:
+ *     summary: Change domain type for a customer
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - domain_type             
+ *             properties:
+ *               domain_id:
+ *                 type: string                           
+ *               domain_type:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: Domain type change successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/change-domain-type", verifyToken, async (req, res) => {
+  const result = await domainService.changedomaintype(req.body);
+  res.status(result.status).json(result);
+});
 
 
 module.exports = router;
