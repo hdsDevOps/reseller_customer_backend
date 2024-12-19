@@ -46,7 +46,7 @@ yarn-error.log*
 */node_modules
 
 /node_modules
-
+*.env
 
 /reseller_customer_backend/customerservices/node_modules
 /reseller_customer_backend/adminservices
