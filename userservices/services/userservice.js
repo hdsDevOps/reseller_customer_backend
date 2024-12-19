@@ -52,10 +52,10 @@ async function addEmail(data) {
       is_admin: false,      
     };
 
-    const customerRef = await db.collection("customers").doc(data.user_id);
+    const customerRef = await db.collection("domains").doc(data.domain_id);
     await customerRef.update({
       emails: admin.firestore.FieldValue.arrayUnion(newEmail),
-      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     return {

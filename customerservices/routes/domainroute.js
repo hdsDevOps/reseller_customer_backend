@@ -77,7 +77,8 @@ router.post("/adddomain", verifyToken, async (req, res) => {
  *               - customer_id              
  *             properties:
  *               customer_id:
- *                 type: string                           
+ *                 type: string
+ *                                   
  *     responses:
  *       200:
  *         description: Domains fetched successfully

@@ -449,15 +449,26 @@ async function getBillingHistory(data) {
 }
 async function getsubscriptiondata(data) {
   try {   
-    let query = db
+    let query="";
+    if(data.subscription_id!=""){
+      query = db
+      .collection("subscription_plans").doc(data.subscription_id);
+    }else{
+      query = db
       .collection("subscription_plans");
+    }
+     
 
     const subscription = await query.get();
-    const subscriptionData = subscription.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),      
-    }));
-
+    let subscriptionData="";
+    if(data.subscription_id!=""){
+      subscriptionData=[{id:data.subscription_id,...subscription.data()}];
+    }else{
+       subscriptionData = subscription.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),      
+      }));
+    }
     return {
       status: 200,
       message: "subscription data retrieved successfully",

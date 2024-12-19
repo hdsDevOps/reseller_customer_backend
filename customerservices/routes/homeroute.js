@@ -302,7 +302,7 @@ router.post('/staff_list', verifyToken, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/edit_staff',  verifyToken, async (req, res) => {
+router.post('/edit_staff', verifyToken, async (req, res) => {
   try {
     const result = await homeService.editStaff(req.body);
     res.status(result.status).json(result);
@@ -339,7 +339,7 @@ router.post('/edit_staff',  verifyToken, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/delete_staff',  verifyToken, async (req, res) => {
+router.post('/delete_staff', verifyToken, async (req, res) => {
   try {
     const result = await homeService.deleteStaff(req.body);
     res.status(result.status).json(result);
@@ -560,17 +560,24 @@ router.post('/exportbillinghistory', async (req, res) => {
 /**
  * @swagger
  * /home/api/v1//getsubscriptiondata:
- *   get:
+ *   post:
  *     summary: Get available subscription data
  *     tags: [Home]
+ * requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           subscription_id:
+ *             type: string (optional)
+ *             
  *     responses:
  *       200:
  *         description: subscription data retrieved successfully
  *       500:
  *         description: Internal server error
  */
-router.get('/getsubscriptiondata', async (req, res) => {
-  const result = await homeService.getsubscriptiondata();
+router.post('/getsubscriptiondata', async (req, res) => {
+  const result = await homeService.getsubscriptiondata(req.body);
   res.status(result.status).json(result);
 });
 

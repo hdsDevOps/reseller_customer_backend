@@ -149,6 +149,43 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
 
 /**
  * @swagger
+ * /user/api/v1/update-email-status:
+ *   post:
+ *     summary: Update email status
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - rec_id
+ *               - password
+ *             properties:
+ *               id:
+ *                 type: string
+ *               rec_id:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email password reset successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/resetemailpassword", verifyToken, async (req, res) => {
+  const result = await userService.resetEmailPassword(req.body);
+  res.status(result.status).json(result);
+});
+
+
+/**
+ * @swagger
  * /user/api/v1/updateprofile:
  *   post:
  *     summary: Update customer profile

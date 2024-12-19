@@ -50,11 +50,16 @@ async function domainlist(data) {
     if (!data.customer_id) {
       return { status: 400, message: "Missing required fields" };
     }
-    const domain = await db.collection("domains").where("customer_id", "=", data.customer_id).where("is_deleted", "=", false).get();
-    const domains_data = domain.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    let domain = [];
+    let domains_data = [];   
+       domain = await db.collection("domains").where("customer_id", "==", data.customer_id).where("is_deleted", "==", false).get();
+        
+      domains_data = domain.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+   
+
     return { status: 200, msg: "Domains fetched successfully", data: domains_data };
   } catch (error) {
     return {
@@ -89,7 +94,7 @@ async function changedomaintype(data) {
       return { status: 400, message: "Missing required fields" };
     }
     await db.collection("domains").doc(data.domain_id).update({
-      domain_type:data.domain_type,
+      domain_type: data.domain_type,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
