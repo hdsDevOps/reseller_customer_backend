@@ -384,13 +384,19 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendOTPEmail(email, otp) {
+async function sendOTPEmail(email, otp, subject = "", body = "") {
+  if (subject == "") {
+    subject = "Your OTP for Registration";
+  }
+  if (body == "") {
+    body = `<p>Your OTP for registration is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+  }
   const mailOptions = {
     from: process.env.MAILUSER,
     to: email,
-    subject: "Your OTP for Registration",
-    html: `<p>Your OTP for registration is: <strong>${otp}</strong></p>
-             <p>This OTP will expire in 10 minutes.</p>`,
+    subject: subject,
+    html: body,
   };
 
   return new Promise((resolve, reject) => {

@@ -19,12 +19,15 @@ const { verifyToken } = require("../middleware/auth");
  *             type: object
  *             required:
  *               - id
+ *               - domain_id
  *             properties:
  *               id:
  *                 type: string
+ *               domain_id:
+ *                 type: string
  *     responses:
  *       200:
- *         description: List of emails for the customer
+ *         description: List of emails for the domain
  *       401:
  *         description: Unauthorized
  */
@@ -146,6 +149,43 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
   const result = await userService.resetEmailPassword(req.body);
   res.status(result.status).json(result);
 });
+
+/**
+ * @swagger
+ * /user/api/v1/changeemailstatus:
+ *   post:
+ *     summary: Change email status
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - email
+ *               - status
+ *             properties:
+ *               domain_id:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email status change successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/changeemailstatus", verifyToken, async (req, res) => {
+  const result = await userService.changeemailstatus(req.body);
+  res.status(result.status).json(result);
+});
+
 
 /**
  * @swagger

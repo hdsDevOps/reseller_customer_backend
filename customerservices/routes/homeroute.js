@@ -302,7 +302,7 @@ router.post('/staff_list', verifyToken, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/edit_staff',  verifyToken, async (req, res) => {
+router.post('/edit_staff', verifyToken, async (req, res) => {
   try {
     const result = await homeService.editStaff(req.body);
     res.status(result.status).json(result);
@@ -339,7 +339,7 @@ router.post('/edit_staff',  verifyToken, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/delete_staff',  verifyToken, async (req, res) => {
+router.post('/delete_staff', verifyToken, async (req, res) => {
   try {
     const result = await homeService.deleteStaff(req.body);
     res.status(result.status).json(result);
@@ -559,19 +559,82 @@ router.post('/exportbillinghistory', async (req, res) => {
 
 /**
  * @swagger
- * /home/api/v1//getsubscriptiondata:
- *   get:
- *     summary: Get available subscription data
+ * /home/api/v1/getsubscriptiondata:
+ *   post:
+ *     summary: Get avilable subscription data
  *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscription_id
+ *             properties:
+ *               subscription_id:
+ *                 type: string
+ *                 description: Subscription ID
  *     responses:
  *       200:
  *         description: subscription data retrieved successfully
+ *         content:
+ *           application/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Error in getsubscriptiondata
  *       500:
  *         description: Internal server error
  */
-router.get('/getsubscriptiondata', async (req, res) => {
-  const result = await homeService.getsubscriptiondata();
+router.post('/getsubscriptiondata', async (req, res) => {
+  const result = await homeService.getsubscriptiondata(req.body);
   res.status(result.status).json(result);
 });
+
+/**
+ * @swagger
+ * /home/api/v1/getpaymentmethod:
+ *   get:
+ *     summary: Get faqs list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: FAQs retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/getfaqs', async (req, res) => {
+  try {
+    const result = await homeService.getfaqs();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving faqs", error: error.message });
+  }
+});
+/**
+ * @swagger
+ * /home/api/v1/gethomedata:
+ *   get:
+ *     summary: Get data list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: data retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/gethomedata', async (req, res) => {
+  try {
+    const result = await homeService.gethomedata();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
+  }
+});
+
 
 module.exports = router;

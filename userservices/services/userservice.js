@@ -3,14 +3,14 @@ const { hashPassword } = require("../helper");
 
 async function getCustomerEmails(data) {
   try {
-    if (!data.user_id) {
+    if (!data.user_id || !data.domain_id) {
       return { status: 400, message: "Missing customer ID" };
     }
 
-    const customerDoc = await db.collection("customers").doc(data.user_id).get();
+    const customerDoc = await db.collection("domains").doc(data.domain_id).get();
 
     if (!customerDoc.exists) {
-      return res.status(404).json({ error: "Customer not found" });
+      return res.status(404).json({ error: "Domain not found" });
     }
 
     const emails = customerDoc.data().emails || [];
@@ -49,12 +49,18 @@ async function addEmail(data) {
       email: data.email,
       salt: salt,
       passwordHash: hash,
+<<<<<<< HEAD
       is_admin: false
+=======
+      is_admin: false,
+      statue:true      
+>>>>>>> f3d4aff59593be24cb4c82aa18d4e577ea3f8022
     };
 
-    const customerRef = await db.collection("customers").doc(data.user_id);
+    const customerRef = await db.collection("domains").doc(data.domain_id);
     await customerRef.update({
       emails: admin.firestore.FieldValue.arrayUnion(newEmail),
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     return {
@@ -70,11 +76,11 @@ async function addEmail(data) {
 
 async function makeEmailAdmin(data) {
   try {
-    if (!data.user_id || !data.rec_id) {
-      return { status: 400, message: "Missing customer ID or email record ID" };
+    if (!data.domain_id || !data.rec_id) {
+      return { status: 400, message: "Missing domain ID or email record ID" };
     }
 
-    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerRef = db.collection("domains").doc(data.domain_id);
     const customerDoc = await customerRef.get();
     const emails = customerDoc.data().emails || [];
     const updatedEmails = emails.map((response) =>
@@ -95,13 +101,13 @@ async function makeEmailAdmin(data) {
 
 async function resetEmailPassword(data) {
   try {
-    if (!data.user_id || !data.rec_id || !data.password) {
+    if (!data.domain_id || !data.rec_id || !data.password) {
       return { status: 400, message: "Missing required fields" };
     }
 
     const { salt, hash } = hashPassword(data.password);
 
-    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerRef = db.collection("domains").doc(data.domain_id);
     const customerDoc = await customerRef.get();
     const emails = customerDoc.data().emails || [];
 
@@ -116,6 +122,31 @@ async function resetEmailPassword(data) {
     return {
       status: 500,
       message: "Error resetting email password",
+      error: error.message,
+    };
+  }
+}
+async function changeemailstatus(data) {
+  try {    
+    if (!data.domain_id || !data.email) {
+      return { status: 400, message: "Missing required fields" };
+    }   
+
+    const customerRef = db.collection("domains").doc(data.domain_id);
+    const customerDoc = await customerRef.get();
+    const emails = customerDoc.data().emails || [];
+
+    const updatedEmails = emails.map((em) =>
+      em.email === data.email ? { ...em, status: data.status } : em
+    );
+    await customerRef.update({ emails: updatedEmails });
+
+    return { status: 200, message: "Email status change successfully" };
+  } catch (error) {
+    console.error("Error in change status:", error);
+    return {
+      status: 500,
+      message: "Error change email status",
       error: error.message,
     };
   }
@@ -237,4 +268,5 @@ module.exports = {
   addToCart,
   getCurrenciesList,
   updateCurrency,
+  changeemailstatus
 };

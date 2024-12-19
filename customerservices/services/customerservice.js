@@ -10,7 +10,7 @@ const {
 
 async function registerCustomer(data) {
   try {
-    // Validate input data
+    // Validate input data  
     if (!data.email || !data.password || !data.first_name || !data.last_name) {
       return { status: 400, message: "Missing required fields" };
     }
@@ -29,7 +29,7 @@ async function registerCustomer(data) {
 
     const userRecord = await admin.auth().createUser({
       email: data.email,
-      password:data.password,
+      password: data.password,
       disabled: false,
     });
 
@@ -50,7 +50,13 @@ async function registerCustomer(data) {
       isVerified: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
+    await db
+      .collection("customers")
+      .doc(userRecord.uid)
+      .update({
+        otp: otp,
+        otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+      });
     // Send OTP email
     await sendOTPEmail(data.email, otp);
 
@@ -71,50 +77,50 @@ async function registerCustomer(data) {
 }
 
 
-async function verifyOTP(data) {
-  try {
-    if (!data.customer_id || !data.otp) {
-      return { status: 400, message: "Missing customer ID or OTP" };
-    }
+// async function verifyOTP(data) {
+//   try {
 
-    const otpDoc = await db.collection("otps").doc(data.customer_id).get();
+//     if (!data.customer_id || !data.otp) {
+//       return { status: 400, message: "Missing customer ID or OTP" };
+//     }
 
-    if (!otpDoc.exists) {
-      return { status: 400, message: "Invalid OTP or customer ID" };
-    }
+//     const otpDoc = await db.collection("otps").doc(data.customer_id).get();
+//     if (!otpDoc.exists) {
+//       return { status: 400, message: "Invalid OTP or customer ID" };
+//     }
 
-    const otpData = otpDoc.data();
-    const now = admin.firestore.Timestamp.now();
-    const otpCreationTime = otpData.createdAt;
+//     const otpData = otpDoc.data();
+//     const now = admin.firestore.Timestamp.now();
+//     const otpCreationTime = otpData.createdAt;
 
-    // Check if OTP is expired (10 minutes validity)
-    if (now.seconds - otpCreationTime.seconds > 600) {
-      return { status: 400, message: "OTP has expired" };
-    }
+//     // Check if OTP is expired (10 minutes validity)
+//     if (now.seconds - otpCreationTime.seconds > 600) {
+//       return { status: 400, message: "OTP has expired" };
+//     }
 
-    if (otpData.otp === data.otp) {
-      // Mark customer as verified
-      await db.collection("customers").doc(data.customer_id).update({
-        isVerified: true,
-        verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+//     if (otpData.otp === data.otp) {    
+//       // Mark customer as verified
+//       await db.collection("customers").doc(data.customer_id).update({
+//         isVerified: true,
+//         verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+//       });
 
-      // Delete the used OTP
-      await db.collection("otps").doc(data.customer_id).delete();
+//       // Delete the used OTP
+//       await db.collection("otps").doc(data.customer_id).delete();
 
-      return { status: 200, message: "OTP verified successfully" };
-    } else {
-      return { status: 400, message: "Invalid OTP" };
-    }
-  } catch (error) {
-    console.error("Error in verifyOTP:", error);
-    return {
-      status: 500,
-      message: "Error verifying OTP",
-      error: error.message,
-    };
-  }
-}
+//       return { status: 200, message: "OTP verified successfully" };
+//     } else {
+//       return { status: 400, message: "Invalid OTP" };
+//     }
+//   } catch (error) {
+//     console.error("Error in verifyOTP:", error);
+//     return {
+//       status: 500,
+//       message: "Error verifying OTP",
+//       error: error.message,
+//     };
+//   }
+// }
 
 async function verifyLoginOTP(data) {
   try {
@@ -135,7 +141,7 @@ async function verifyLoginOTP(data) {
     if (now.seconds - otpCreationTime.seconds > 6000) {
       return { status: 400, message: "OTP has expired" };
     }
-    
+
 
     if (otpData.otp === data.otp) {
       await db.collection("otps").doc(data.customer_id).delete();
@@ -147,7 +153,7 @@ async function verifyLoginOTP(data) {
       const customerDoc = doc.data();
       const { passwordHash, ...customerData } = customerDoc;
 
-      return { status: 200, message: "Login successful", token: customToken,customerData };
+      return { status: 200, message: "Login successful", token: customToken, customerData };
     } else {
       return { status: 400, message: "Invalid OTP" };
     }
@@ -156,8 +162,6 @@ async function verifyLoginOTP(data) {
     return { status: 500, message: "Error verifying OTP", error: error.message };
   }
 }
-
-
 
 async function loginCustomer(data) {
   try {
@@ -205,7 +209,7 @@ async function loginCustomer(data) {
       status: 200,
       message: "Login successful. Please check your email for OTP.",
       customer_id: customerId,
-      otp:otp
+      otp: otp
     };
   } catch (error) {
     console.error("Error in loginCustomer:", error);
@@ -242,7 +246,7 @@ async function verifyOTP(data) {
 
       // Delete the used OTP
       await db.collection("customers").doc(data.customer_id).update({
-        // isVerified: true,
+        isVerified: true,
         otp: admin.firestore.FieldValue.delete(),
         otpExpiry: admin.firestore.FieldValue.delete(),
       });
@@ -288,8 +292,10 @@ async function requestPasswordReset(data) {
       otp: otp,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    await sendOTPEmail(data.email, otp);
+    let subject = "Your OTP for reset password";
+    let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp, subject, body);
     console.log(otp);
     return { status: 200, message: "Password reset OTP sent to your email" };
   } catch (error) {
@@ -325,8 +331,10 @@ async function resendForgetPasswordOTP(data) {
       otp: otp,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    await sendOTPEmail(data.email, otp);
+    let subject = "Your OTP for reset password";
+    let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp,subject,body);
 
     return {
       status: 200,
@@ -427,6 +435,51 @@ async function resetPassword(data) {
   }
 }
 
+async function resendOTP(data) {
+  try {
+    // Validate input data  
+    if (!data.customer_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    let query = db
+      .collection("customers").doc(data.customer_id);
+    const customer = await query.get();
+    const customerdata = customer.data();
+
+    // Check if email already exists
+
+    if (!customerdata) {
+      return { status: 400, message: "No user found" };
+    }
+    const otp = generateOTP();
+    await db
+      .collection("customers")
+      .doc(data.customer_id)
+      .update({
+        isVerified: false,
+        otp: otp,
+        otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+      });
+    // Send OTP email
+    
+    await sendOTPEmail(customerdata.email, otp);
+
+    return {
+      status: 200,
+      message:
+        "Please check your email for OTP.",
+      userId: data.customer_id,
+    };
+  } catch (error) {
+    console.error("Error in OTP generation:", error);
+    return {
+      status: 500,
+      message: "Error OTP generation",
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   registerCustomer,
   verifyOTP,
@@ -435,5 +488,6 @@ module.exports = {
   resendForgetPasswordOTP,
   verifyForgetPasswordOTP,
   resetPassword,
-  verifyLoginOTP
+  verifyLoginOTP,
+  resendOTP
 };
