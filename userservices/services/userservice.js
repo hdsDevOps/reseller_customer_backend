@@ -49,8 +49,7 @@ async function addEmail(data) {
       email: data.email,
       salt: salt,
       passwordHash: hash,
-      is_admin: false,
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
+      is_admin: false
     };
 
     const customerRef = await db.collection("customers").doc(data.user_id);
