@@ -49,12 +49,8 @@ async function addEmail(data) {
       email: data.email,
       salt: salt,
       passwordHash: hash,
-<<<<<<< HEAD
-      is_admin: false
-=======
       is_admin: false,
       statue:true      
->>>>>>> f3d4aff59593be24cb4c82aa18d4e577ea3f8022
     };
 
     const customerRef = await db.collection("domains").doc(data.domain_id);
