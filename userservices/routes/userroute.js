@@ -149,9 +149,9 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /user/api/v1/update-email-status:
+ * /user/api/v1/changeemailstatus:
  *   post:
- *     summary: Update email status
+ *     summary: Change email status
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
@@ -162,24 +162,24 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - id
- *               - rec_id
- *               - password
+ *               - domain_id
+ *               - email
+ *               - status
  *             properties:
- *               id:
+ *               domain_id:
  *                 type: string
- *               rec_id:
+ *               email:
  *                 type: string
- *               password:
+ *               status:
  *                 type: string
  *     responses:
  *       200:
- *         description: Email password reset successfully
+ *         description: Email status change successfully
  *       401:
  *         description: Unauthorized
  */
-router.post("/resetemailpassword", verifyToken, async (req, res) => {
-  const result = await userService.resetEmailPassword(req.body);
+router.post("/changeemailstatus", verifyToken, async (req, res) => {
+  const result = await userService.changeemailstatus(req.body);
   res.status(result.status).json(result);
 });
 
