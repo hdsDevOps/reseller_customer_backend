@@ -443,11 +443,8 @@ async function resendOTP(data) {
     const customerdata = customer.data();
 
     // Check if email already exists
-    const existingUser = await admin
-      .auth()
-      .getUserByEmail(customerdata.email)
-      .catch(() => null);
-    if (!existingUser) {
+    
+    if (!customerdata) {
       return { status: 400, message: "No user found" };
     }
     const otp = generateOTP();
