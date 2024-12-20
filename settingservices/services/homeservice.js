@@ -199,6 +199,7 @@ async function addStaff(data) {
       email: data.email,
       phone_no: data.phone_no,
       user_type_id: data.user_type_id,
+      is_staff: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     };
 
@@ -241,7 +242,7 @@ async function getStaffList(data) {
     let query = db
       .collection("users")
       .where("customer_id", "==", data.user_id)
-      .where("user_type_id", "==", data.user_type_id);
+      .where("user_type", "==", data.user_type_id);
 
     // Search functionality if search_text is provided
     if (data.search_text) {
@@ -298,6 +299,7 @@ async function editStaff(data) {
       email: data.email,
       phone_no: data.phone_no,
       user_type_id: data.user_type_id,
+      is_staff: true,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
