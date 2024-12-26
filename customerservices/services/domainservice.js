@@ -2,24 +2,24 @@ const { admin, db } = require("../firebaseConfig");
 const { sendmail } = require("../helper");
 
 async function adddomain(data) {
-  try {
+  try {    
     if (
       !data.customer_id ||
       !data.domain_name ||
       !data.domain_type ||
       !data.subscription_id||
-      !data.data.business_email||
-      !data.data.license_usage||
-      !data.data.plan||
-      !data.data.payment_method||
-      !data.data.domain_status||
-      !data.data.billing_period||
-      !data.data.renew_status||
-      !data.data.subscription_status
+      !data.business_email||
+      !data.license_usage||
+      !data.plan||
+      !data.payment_method||
+      !data.domain_status||
+      !data.billing_period||
+      !data.renew_status||
+      !data.subscription_status
     ) {
       return { status: 400, message: "Missing required fields" };
     }
-
+    console.log("object=============",data);
     const newDomain = {
       customer_id: data.customer_id,
       domain_name: data.domain_name,
