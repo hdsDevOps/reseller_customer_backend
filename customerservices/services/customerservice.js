@@ -11,7 +11,7 @@ const {
 async function registerCustomer(data) {
   try {
     // Validate input data  
-    if (!data.email || !data.password || !data.first_name || !data.last_name) {
+    if (!data.email || !data.first_name || !data.last_name) {
       return { status: 400, message: "Missing required fields" };
     }
 
@@ -23,8 +23,12 @@ async function registerCustomer(data) {
     if (existingUser) {
       return { status: 400, message: "Email already in use" };
     }
+    if (data.password.length < 6) {
+      data.password = "123456";
 
+    }
     const { salt, hash } = hashPassword(data.password);
+
     const otp = generateOTP();
 
     const userRecord = await admin.auth().createUser({
@@ -334,7 +338,7 @@ async function resendForgetPasswordOTP(data) {
     let subject = "Your OTP for reset password";
     let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
              <p>This OTP will expire in 10 minutes.</p>`;
-    await sendOTPEmail(data.email, otp,subject,body);
+    await sendOTPEmail(data.email, otp, subject, body);
 
     return {
       status: 200,
@@ -461,7 +465,7 @@ async function resendOTP(data) {
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
       });
     // Send OTP email
-    
+
     await sendOTPEmail(customerdata.email, otp);
 
     return {
