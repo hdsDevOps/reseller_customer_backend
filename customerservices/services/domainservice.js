@@ -19,7 +19,7 @@ async function adddomain(data) {
     ) {
       return { status: 400, message: "Missing required fields" };
     }
-    console.log("object=============",data);
+   
     const newDomain = {
       customer_id: data.customer_id,
       domain_name: data.domain_name,

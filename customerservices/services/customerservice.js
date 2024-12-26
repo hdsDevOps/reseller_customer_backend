@@ -207,7 +207,7 @@ async function loginCustomer(data) {
         otpExpiry: Date.now() + 5 * 60 * 1000, // 5 minutes
       });
 
-    // await sendOTPEmail(data.email, otp);
+    await sendOTPEmail(data.email, otp);
 
     return {
       status: 200,
