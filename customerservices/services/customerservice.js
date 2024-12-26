@@ -47,7 +47,7 @@ async function registerCustomer(data) {
       zipcode: data.zipcode,
       street_name: data.street_name,
       region: data.region,
-      phone_no: data.phone_no,
+      business_phone_number: data.business_phone_number,
       salt: salt,
       passwordHash: hash,
       email: data.email,
