@@ -45,7 +45,7 @@ async function adddomain(data) {
     return {
       status: 200,
       message: "Domain added successfully",
-      settingId: docRef.id,
+      domain_id: docRef.id,
     };
   } catch (error) {
     return {
