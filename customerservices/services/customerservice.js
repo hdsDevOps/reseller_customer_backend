@@ -206,8 +206,10 @@ async function loginCustomer(data) {
         otp: otp,
         otpExpiry: Date.now() + 5 * 60 * 1000, // 5 minutes
       });
-
-    await sendOTPEmail(data.email, otp);
+    let subject = "Your OTP for Login";
+    let body = `<p>Your OTP for Login is: <strong>${otp}</strong></p>
+               <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp, subject, body);
 
     return {
       status: 200,
