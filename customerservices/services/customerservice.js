@@ -441,6 +441,53 @@ async function resetPassword(data) {
   }
 }
 
+async function resendLoginOTP(data) {
+  try {
+    // Validate input data  
+    if (!data.customer_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    let query = db
+      .collection("customers").doc(data.customer_id);
+    const customer = await query.get();
+    const customerdata = customer.data();
+
+    // Check if email already exists
+
+    if (!customerdata) {
+      return { status: 400, message: "No user found" };
+    }
+    const otp = generateOTP();
+    await db
+      .collection("customers")
+      .doc(data.customer_id)
+      .update({
+        isVerified: false,
+        otp: otp,
+        otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+      });
+    // Send OTP email
+
+    let subject = "Your OTP for reset Login";
+    let body = `<p>Your OTP for reset Login is: <strong>${otp}</strong></p>
+             <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(customerdata.email, otp, subject, body);
+
+    return {
+      status: 200,
+      message:
+        "Please check your email for OTP.",
+      userId: data.customer_id,
+    };
+  } catch (error) {
+    console.error("Error in OTP generation:", error);
+    return {
+      status: 500,
+      message: "Error OTP generation",
+      error: error.message,
+    };
+  }
+}
 async function resendOTP(data) {
   try {
     // Validate input data  
@@ -495,5 +542,6 @@ module.exports = {
   verifyForgetPasswordOTP,
   resetPassword,
   verifyLoginOTP,
-  resendOTP
+  resendOTP,
+  resendLoginOTP
 };

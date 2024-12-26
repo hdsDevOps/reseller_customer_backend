@@ -249,6 +249,60 @@ router.post('/reset_password', async (req, res) => {
 
 /**
  * @swagger
+ * /customer/api/v1/resend_forget_password_OTP:
+ *   post:
+ *     summary: Resend OTP for forget password
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email              
+ *             properties:
+ *               email:
+ *                 type: string            
+ *     responses:
+ *       200:
+ *         description: OTP send successfully
+ *       400:
+ *         description: Invalid request
+ */
+router.post('/resend_forget_password_OTP', async (req, res) => {
+  const result = await customerService.resendForgetPasswordOTP(req.body);
+  res.status(result.status).json(result);
+});
+/**
+ * @swagger
+ * /customer/api/v1/resed_otp_login:
+ *   post:
+ *     summary: Resend OTP
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customer_id              
+ *             properties:
+ *               customer_id:
+ *                 type: string            
+ *     responses:
+ *       200:
+ *         description: OTP send successfully
+ *       400:
+ *         description: Invalid request
+ */
+router.post('/resed_otp_login', async (req, res) => {
+  const result = await customerService.resendLoginOTP(req.body);
+  res.status(result.status).json(result);
+});
+/**
+ * @swagger
  * /customer/api/v1/resed_otp:
  *   post:
  *     summary: Resend OTP
