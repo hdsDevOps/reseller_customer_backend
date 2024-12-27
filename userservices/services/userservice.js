@@ -1,5 +1,6 @@
 const { admin, db } = require("../firebaseConfig");
 const { hashPassword } = require("../helper");
+const { v4: uuidv4 } = require('uuid');
 
 async function getCustomerEmails(data) {
   try {
@@ -42,6 +43,7 @@ async function addEmail(data) {
     const { salt, hash } = hashPassword(data.password);
 
     const newEmail = {
+      uuid: uuidv4().replace(/-/g, ''),
       customer_id: data.user_id,
       domain_id: data.domain_id,
       first_name: data.first_name,
@@ -50,10 +52,10 @@ async function addEmail(data) {
       salt: salt,
       passwordHash: hash,
       is_admin: false,
-      statue:true      
+      statue: true,
     };
 
-    const customerRef = await db.collection("domains").doc(data.domain_id);
+    const customerRef = db.collection("domains").doc(data.domain_id);
     await customerRef.update({
       emails: admin.firestore.FieldValue.arrayUnion(newEmail),
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -70,6 +72,68 @@ async function addEmail(data) {
   }
 }
 
+async function updateEmaliAccount(data) {
+  try {
+    if (!data.domain_id || !data.uuid) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const customerRef = db.collection("domains").doc(data.domain_id);
+    const customerDoc = await customerRef.get();
+    const emails = customerDoc.data().emails || [];
+
+    let upEmail = {};
+    if (data.hasOwnProperty('first_name')) {
+      upEmail.first_name = data.first_name;
+    }
+    if (data.hasOwnProperty('last_name')) {
+      upEmail.last_name = data.last_name;
+    }
+    if (data.hasOwnProperty('email')) {
+      upEmail.email = data.email;
+    }
+
+
+    const updatedEmails = emails.map((email) =>
+
+      email.uuid === data.uuid ? { ...email, ...upEmail } : email
+    );
+    await customerRef.update({ emails: updatedEmails });
+
+    return { status: 200, message: "Email updated successfully" };
+  } catch (error) {
+    console.error("Error in updateEmaliAccount:", error);
+    return {
+      status: 500,
+      message: "Error updating email",
+      error: error.message,
+    };
+  }
+}
+async function deleteEmaliAccount(data) {
+  try {
+    if (!data.domain_id || !data.uuid) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const customerRef = db.collection("domains").doc(data.domain_id);
+    const customerDoc = await customerRef.get();
+    const emails = customerDoc.data().emails || [];
+
+    
+    const updatedEmails = emails.filter(email => email.uuid !== data.uuid);
+    await customerRef.update({ emails: updatedEmails });
+
+    return { status: 200, message: "Email deleted successfully" };
+  } catch (error) {
+    console.error("Error in deleteEmaliAccount:", error);
+    return {
+      status: 500,
+      message: "Error deleting email",
+      error: error.message,
+    };
+  }
+}
 async function makeEmailAdmin(data) {
   try {
     if (!data.domain_id || !data.rec_id) {
@@ -264,5 +328,7 @@ module.exports = {
   addToCart,
   getCurrenciesList,
   updateCurrency,
-  changeemailstatus
+  changeemailstatus,
+  updateEmaliAccount,
+  deleteEmaliAccount
 };

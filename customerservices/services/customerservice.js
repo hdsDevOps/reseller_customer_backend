@@ -62,8 +62,7 @@ async function registerCustomer(data) {
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
       });
     // Send OTP email
-    await sendOTPEmail(data.email, otp);
-
+    await sendOTPEmail(data.email, otp);   
     return {
       status: 200,
       message:

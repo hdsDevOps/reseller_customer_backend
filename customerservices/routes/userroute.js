@@ -285,5 +285,78 @@ router.post("/user/api/v1/updatecurrency", verifyToken, async (req, res) => {
   const result = await userService.updateCurrency(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /user/api/v1/update_email_account:
+ *   post:
+ *     summary: Update email account
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - uuid
+ *               - first_name
+ *               - last_name
+ *               - email
+ *             properties:
+ *               domain_id:
+ *                 type: string
+ *               uuid:
+ *                 type: string
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/update_email_account", verifyToken, async (req, res) => {
+  const result = await userService.updateEmaliAccount(req.body);
+  res.status(result.status).json(result);
+});
+/**
+ * @swagger
+ * /user/api/v1/delete_email_account:
+ *   post:
+ *     summary: Delete email account
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - uuid
+ *             properties:
+ *               domain_id:
+ *                 type: string
+ *               uuid:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/delete_email_account", verifyToken, async (req, res) => {
+  const result = await userService.deleteEmaliAccount(req.body);
+  res.status(result.status).json(result);
+});
 
 module.exports = router;

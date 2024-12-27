@@ -28,7 +28,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "urlencode": "^2.0.0",
-    "urlencoder": "^0.1.0"
+    "urlencoder": "^0.1.0",
+    "uuid": "^11.0.3"
   },
   "proxy": "http://0.0.0.0:7002",
   "devDependencies": {
@@ -36,5 +37,3 @@
     "nodemon": "^3.1.4"
   }
 }
-
-
