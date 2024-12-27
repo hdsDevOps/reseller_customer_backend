@@ -69,6 +69,7 @@ async function registerCustomer(data) {
       message:
         "Customer registered successfully. Please check your email for OTP.",
       userId: userRecord.uid,
+      otp: otp,
     };
   } catch (error) {
     console.error("Error in registerCustomer:", error);
@@ -522,6 +523,7 @@ async function resendOTP(data) {
       message:
         "Please check your email for OTP.",
       userId: data.customer_id,
+      otp: otp
     };
   } catch (error) {
     console.error("Error in OTP generation:", error);
