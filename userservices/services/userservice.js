@@ -172,7 +172,7 @@ async function resetEmailPassword(data) {
     const emails = customerDoc.data().emails || [];
 
     const updatedEmails = emails.map((email) =>
-      email.id === data.rec_id ? { ...email, salt, passwordHash: hash } : email
+      email.email === data.rec_id ? { ...email, salt, passwordHash: hash } : email
     );
     await customerRef.update({ emails: updatedEmails });
 
