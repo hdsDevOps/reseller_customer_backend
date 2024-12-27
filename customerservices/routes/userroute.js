@@ -234,6 +234,7 @@ router.post("/addtocart", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+
 /**
  * @swagger
  * /user/api/v1/currencieslist:

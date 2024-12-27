@@ -273,7 +273,35 @@ router.post("/addtocart", verifyToken, async (req, res) => {
   const result = await userService.addToCart(req.body);
   res.status(result.status).json(result);
 });
-
+/**
+ * @swagger
+ * /user/api/v1/cartlist:
+ *   post:
+ *     summary: cart list
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Cart list fatched successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/cartlist", verifyToken, async (req, res) => {
+  const result = await userService.cartList(req.body);
+  res.status(result.status).json(result);
+});
 /**
  * @swagger
  * /user/api/v1/currencieslist:

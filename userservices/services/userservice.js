@@ -267,12 +267,31 @@ async function addToCart(data) {
     data.products.forEach((product) => {
       product.uuid=product.hasOwnProperty("uuid") ? product.uuid : uuidv4().replace(/-/g, '');
     });
+   
     const customerRef = db.collection("customers").doc(data.user_id);
     await customerRef.update({
-      cart: admin.firestore.FieldValue.arrayUnion(...data.products),
+      cart: data.products
     });
 
     return { status: 200, message: "Product added to cart successfully" };
+  } catch (error) {
+    console.error("Error in addToCart:", error);
+    return {
+      status: 500,
+      message: "Error adding product to cart",
+      error: error.message,
+    };
+  }
+}
+async function cartList(data) {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing customer ID" };
+    }
+    const customerDoc = await db.collection("customers").doc(data.user_id).get();
+    const cart = customerDoc.data().cart || [];
+    return { status: 200, message:"Cart list fatched successfully", cart };
+
   } catch (error) {
     console.error("Error in addToCart:", error);
     return {
@@ -332,5 +351,6 @@ module.exports = {
   updateCurrency,
   changeemailstatus,
   updateEmaliAccount,
-  deleteEmaliAccount
+  deleteEmaliAccount,
+  cartList
 };
