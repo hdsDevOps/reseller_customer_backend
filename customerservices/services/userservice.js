@@ -270,8 +270,7 @@ async function updateCurrency(data) {
 
 
 
-module.exports = {
-  getCustomerEmails,
+module.exports = { 
   addEmail,
   makeEmailAdmin,
   resetEmailPassword,
