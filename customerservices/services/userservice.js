@@ -3,62 +3,28 @@ const { hashPassword } = require("../helper");
 const { v4: uuidv4 } = require('uuid');
 
 
-async function getCustomerEmails(data) {
-  try {
-    if (!data.id) {
-      return { status: 400, message: "Missing customer ID" };
-    }
-
-    const customerDoc = await db.collection("customers").doc(data.id).get();
-
-    if (!customerDoc.exists) {
-      return res.status(404).json({ error: "Customer not found" });
-    }
-
-    const emails = customerDoc.data().emails || [];
-
-    return { status: 200, emails };
-  } catch (error) {
-    console.error("Error in getCustomerEmails:", error);
-    return {
-      status: 500,
-      message: "Error fetching customer emails",
-      error: error.message,
-    };
-  }
-}
 
 async function addEmail(data) {
   try {
     if (
       !data.user_id ||
-      !data.domain_id ||
-      !data.first_name ||
-      !data.last_name ||
-      !data.email ||
-      !data.password
+      !data.domain_id
     ) {
       return { status: 400, message: "Missing required fields" };
     }
 
-    const { salt, hash } = hashPassword(data.password);
 
-    const newEmail = {
-      uuid: uuidv4().replace(/-/g, ''),
-      customer_id: data.user_id,
-      domain_id: data.domain_id,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      salt: salt,
-      passwordHash: hash,
-      is_admin: false,
-      statue: true,
-    };
+
+    data.emails.forEach((email) => {
+      const { salt, hash } = hashPassword(email.password);
+      email.salt = salt;
+      email.passwordHash = hash;
+      email.uuid=email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
+    });
 
     const customerRef = db.collection("domains").doc(data.domain_id);
     await customerRef.update({
-      emails: admin.firestore.FieldValue.arrayUnion(newEmail),
+      emails: data.emails,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 

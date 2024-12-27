@@ -89,7 +89,7 @@ router.post('/add_customer_subscription', async (req, res) => {
  *         description: Bad request
  */
 router.post('/update_customer_subscription', async (req, res) => {
-  const result = await userService.updateCustomerSubscription(req.body);
+  const result = await subscriptionservice.updateCustomerSubscription(req.body);
   // res.status(result.status).json(result);
   res.status(result.status).json(result);
 });
