@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-voucherapi-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-voucherapi-service
+  template:
+    metadata:
+      labels:
+        app: backend-voucherapi-service
+    spec:
+      containers:
+      - name: backend-voucherapi-service
+        image: hordansodevops/reseller_customer_backend_voucherservices:latest
+        ports:
+        - containerPort: 7008
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: voucherservices-config
