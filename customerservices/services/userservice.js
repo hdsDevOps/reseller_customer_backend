@@ -238,13 +238,15 @@ async function updateProfile(data) {
 
 async function addToCart(data) {
   try {
-    if (!data.id || !data.product_id) {
+    if (!data.user_id || !data.products) {
       return { status: 400, message: "Missing customer ID or product ID" };
     }
-
-    const customerRef = db.collection("customers").doc(data.id);
+    products.forEach((product) => {
+      product.hasOwnProperty("uuid") ? product.uuid : uuidv4().replace(/-/g, '');
+    });
+    const customerRef = db.collection("customers").doc(data.user_id);
     await customerRef.update({
-      cart: admin.firestore.FieldValue.arrayUnion(product_id),
+      cart: admin.firestore.FieldValue.arrayUnion(products),
     });
 
     return { status: 200, message: "Product added to cart successfully" };
@@ -300,36 +302,7 @@ async function updateCurrency(data) {
   }
 }
 
-const addCustomerSubscription = async (data) => {
-  try {    
-    if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status) {
-      return { status: 400, message: "Missing required fields" };
-    }
-    const newSubscription = {
-      product_type: data.product_type,
-      payment_cycle: data.payment_cycle,
-      customer_id: data.customer_id,
-      description: data.description,
-      domain: data.domain,
-      last_payment: data.last_payment,
-      next_payment: data.next_payment,
-      payment_method: data.payment_method,
-      subscription_status: data.subscription_status
-    };
-    const docRef = await admin
-      .firestore()
-      .collection("customer_subscriptions")
-      .add(newSubscription);
-    return { status: 200, message: "Customer subscription added successfully" };
-  } catch (error) {
-    console.error("Error in addCustomerSubscription:", error);
-    return {
-      status: 500,
-      message: "Error adding customer subscription",
-      error: error.message
-    };
-  }
-}
+
 
 module.exports = {
   getCustomerEmails,
@@ -341,5 +314,5 @@ module.exports = {
   getCurrenciesList,
   updateEmaliAccount,
   deleteEmaliAccount,
-  addCustomerSubscription
+
 };
