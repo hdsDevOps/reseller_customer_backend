@@ -24,7 +24,8 @@ async function addEmail(data) {
 
     const customerRef = db.collection("domains").doc(data.domain_id);
     await customerRef.update({
-      emails: data.emails,
+      emails: admin.firestore.FieldValue.arrayUnion(...data.emails),
+      // emails: data.emails,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
