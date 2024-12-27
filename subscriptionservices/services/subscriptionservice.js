@@ -2,7 +2,7 @@ const { admin, db } = require("../firebaseConfig");
 
 const addCustomerSubscription = async (data) => {
   try {
-    console.log("object===============",data);
+    
     if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status) {
       return { status: 400, message: "Missing required fields" };
     }
