@@ -25,6 +25,7 @@ async function adddomain(data) {
       domain_name: data.domain_name,
       domain_type: data.domain_type,
       subscription_id: data.subscription_id,
+      business_name: data.business_name,
       business_email: data.business_email,
       license_usage: data.license_usage,
       plan: data.plan,
