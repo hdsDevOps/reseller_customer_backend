@@ -55,4 +55,43 @@ router.post('/add_customer_subscription', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /user/api/v1/update_customer_subscription:
+ *   post:
+ *     summary: update customer subscription
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscription_id
+ *               - payment_method
+ *               - payment_cycle
+ *               - subsctription_status
+ *               - billing_status
+ *             properties:
+ *               subscription_id:
+ *                 type: string
+ *               payment_method:
+ *                 type: string
+ *               subsctription_status:
+ *                 type: string
+ *               billing_status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Customer subscription updated successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post('/update_customer_subscription', async (req, res) => {
+  const result = await userService.updateCustomerSubscription(req.body);
+  // res.status(result.status).json(result);
+  res.status(result.status).json(result);
+});
+
 module.exports = router;
