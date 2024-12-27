@@ -261,13 +261,15 @@ async function updateProfile(data) {
 
 async function addToCart(data) {
   try {
-    if (!data.user_id || !data.product_id) {
+    if (!data.user_id || !data.products) {
       return { status: 400, message: "Missing customer ID or product ID" };
     }
-
+    data.products.forEach((product) => {
+      product.uuid=product.hasOwnProperty("uuid") ? product.uuid : uuidv4().replace(/-/g, '');
+    });
     const customerRef = db.collection("customers").doc(data.user_id);
     await customerRef.update({
-      cart: admin.firestore.FieldValue.arrayUnion(product_id),
+      cart: admin.firestore.FieldValue.arrayUnion(...data.products),
     });
 
     return { status: 200, message: "Product added to cart successfully" };
