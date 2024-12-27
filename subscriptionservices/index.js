@@ -6,7 +6,7 @@ var cors = require("cors");
 require("dotenv").config();
 // Import routes 
 const subscriptionroute = require("./routes/subscriptionroute.js");
-
+    
 
 app.use(cors());
 app.use(express.json());
