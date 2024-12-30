@@ -83,6 +83,26 @@ async function updateEmaliAccount(data) {
     if (data.hasOwnProperty('email')) {
       upEmail.email = data.email;
     }
+    if (data.hasOwnProperty('phone_no')) {
+      upEmail.phone_no = data.phone_no;
+    }
+    if (data.hasOwnProperty('address')) {
+      upEmail.address = data.address;
+    }
+    if (data.hasOwnProperty('state')) {
+      upEmail.state = data.state;
+    }
+    if (data.hasOwnProperty('city')) {
+      upEmail.city = data.city;
+    }
+    if (data.hasOwnProperty('country')) {
+      upEmail.country = data.country;
+    }
+    if (data.hasOwnProperty('password')) {
+      const { salt, hash } = hashPassword(data.password);
+      upEmail.salt = salt;
+      upEmail.passwordHash = hash;
+    }
 
 
     const updatedEmails = emails.map((email) =>
