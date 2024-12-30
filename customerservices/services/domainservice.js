@@ -157,11 +157,32 @@ async function changesubscriptionstatus(data) {
     };
   }
 }
+async function updateLicenseUsage(data) {
+  try {
+    if (!data.domain_id || !data.license_usage) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    await db.collection("domains").doc(data.domain_id).update({
+      license_usage: data.license_usage,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { status: 200, msg: "License usage updated successfully" };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error License usage update ",
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   adddomain,
   domainlist,
   deletedomain,
   changedomaintype,
   changerenewstatus,
-  changesubscriptionstatus
+  changesubscriptionstatus,
+  updateLicenseUsage
 }

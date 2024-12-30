@@ -218,6 +218,38 @@ router.post("/change-subscription-status", verifyToken, async (req, res) => {
   const result = await domainService.changesubscriptionstatus(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /domain/api/v1/update_license_usage:
+ *   post:
+ *     summary: Update license usage for a domain
+ *     tags: [domain]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - domain_id
+ *               - license_usage             
+ *             properties:
+ *               domain_id:
+ *                 type: string                           
+ *               license_usage:
+ *                 type: string                           
+ *     responses:
+ *       200:
+ *         description: License usage updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/update_license_usage", verifyToken, async (req, res) => {
+  const result = await domainService.updateLicenseUsage(req.body);
+  res.status(result.status).json(result);
+});
 
 
 module.exports = router;
