@@ -402,41 +402,38 @@ async function updatePaymentMethod(data) {
 async function getBillingHistory(data) {
   try {
     if (
-      !data.id ||
-      !data.start_date ||
-      !data.end_date ||
-      !data.domain ||
-      !data.page_no
+      !data.user_id 
     ) {
       return { status: 400, message: "Missing required fields" };
     }
 
-    const pageSize = 10; // Adjust as needed
-    const startAt = (data.page_no - 1) * pageSize;
+    // const pageSize = 10; // Adjust as needed
+    // const startAt = (data.page_no - 1) * pageSize;
 
     let query = db
       .collection("billing_history")
-      .where("customer_id", "==", data.id)
-      .where("domain", "==", data.domain)
-      .where("date", ">=", new Date(data.start_date))
-      .where("date", "<=", new Date(data.end_date))
-      .orderBy("date", "desc")
-      .limit(pageSize)
-      .offset(startAt);
+      .where("user_id", "==", data.user_id);
+    if (data.hasOwnProperty("domain") && data.domain != "") {
+      query = query.where("domain", "==", data.domain);
+    }
+    if (data.hasOwnProperty("start_date") && data.start_date != "" && data.hasOwnProperty("end_date") && data.end_date != "") {
+      query = query.where("created_at", ">=", new Date(data.start_date)).where("created_at", "<=", new Date(data.end_date));
+    }
+    query = query.orderBy("created_at", "desc");
+    // .limit(pageSize)
+    // .offset(startAt);
 
     const billingHistorySnapshot = await query.get();
     const billingHistory = billingHistorySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-      date: doc.data().date.toDate(),
+      date: doc.data().created_at.toDate(),
     }));
 
     return {
       status: 200,
       message: "Billing history retrieved successfully",
-      data: billingHistory,
-      page: data.page_no,
-      pageSize: pageSize,
+      data: billingHistory     
     };
   } catch (error) {
     console.error("Error in getBillingHistory:", error);
@@ -510,9 +507,9 @@ async function gethomedata() {
   try {
     let data = {};
     const document = await db.collection("cms").get();
-    const documentdata = document.docs.reduce((acc, doc) => { 
-      acc[doc.id] = { ...doc.data() }; 
-      return acc; 
+    const documentdata = document.docs.reduce((acc, doc) => {
+      acc[doc.id] = { ...doc.data() };
+      return acc;
     }, {});
 
 
