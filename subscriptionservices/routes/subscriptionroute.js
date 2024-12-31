@@ -4,6 +4,43 @@ const subscriptionservice = require('../services/subscriptionservice');
 
 /**
  * @swagger
+ * /subscriptionservices/subscription/api/v1/get_customer_subscription:
+ *   post:
+ *     summary: Get subscription
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customer_id
+ *               - start_date
+ *               - end_date
+ *               - domain_name
+ *             properties:
+ *               customer_id:
+ *                 type: string
+ *               start_date:
+ *                 type: string
+ *               end_date:
+ *                 type: string
+ *               domain_name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Customer subscription fetched successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post('/get_customer_subscription', async (req, res) => {
+  const result = await subscriptionservice.getCustomerSubscription(req.body);
+  // res.status(result.status).json(result);
+  res.status(result.status).json(result);
+});
+/**
+ * @swagger
  * /subscriptionservices/subscription/api/v1/add_customer_subscription:
  *   post:
  *     summary: Add new subscription
