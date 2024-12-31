@@ -7,7 +7,7 @@ const getCustomerSubscription = async (data) => {
     }
     const subscriptionRef = db.collection("customer_subscriptions");
     let query = subscriptionRef.where("customer_id", "==", data.customer_id);
-    if (data.domain_name) {
+    if (data.hasOwnProperty('domain_name') && data.domain_name != "" && data.domain_name != undefined) {
       query = query.where("domain", "array-contains", data.domain_name);
     }
     if (data.hasOwnProperty('start_date') && data.hasOwnProperty('end_date') && data.start_date != "" && data.end_date != "") {
@@ -41,7 +41,7 @@ const addCustomerSubscription = async (data) => {
     if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status) {
       return { status: 400, message: "Missing required fields" };
     }
-    
+
 
     const newSubscription = {
       product_type: data.product_type,

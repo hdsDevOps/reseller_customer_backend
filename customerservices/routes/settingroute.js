@@ -113,6 +113,35 @@ router.get('/voucherlist', verifyToken, async (req, res) => {
   const result = await settingService.getVoucherList();
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /domain/api/v1/customer_voucher_list:
+ *   post:
+ *     summary: get customer voucher list
+ *     tags: [setting]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - customer_id             
+ *             properties:
+ *               customer_id:
+ *                 type: string                          
+ *     responses:
+ *       200:
+ *         description: customer voucher list fatched successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/customer_voucher_list', verifyToken, async (req, res) => {
+  const result = await settingService.getCustomerVoucherList(req.body);
+  res.status(result.status).json(result);
+});
 
 
 module.exports = router;
