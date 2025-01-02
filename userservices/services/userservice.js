@@ -358,7 +358,7 @@ async function uploadimage(req, res) {
   try {
     if (!req.body.user_id) {
       return res.status(400).send({ status: "error", message: 'Missing user ID' });
-    }    
+    }
     if (!req.file) {
       return res.status(400).send({ status: "error", message: 'No file uploaded.' });
     }
@@ -410,7 +410,7 @@ async function getCustomerProfileData(data) {
     const customerDoc = await db.collection("customers").doc(data.user_id).get();
     const customerData = customerDoc.data();
 
-    return { status: 200,message:"customer profile data fetched successfully", customerData };
+    return { status: 200, message: "customer profile data fetched successfully", customerData };
   } catch (error) {
     console.error("Error in getCustomerProfileData:", error);
     return {
@@ -457,6 +457,39 @@ async function updateCards(data) {
   }
 }
 
+async function getNotifications(data) {
+  try {
+    if (!data.user_id && !data.per_page) {
+      return { status: 400, message: "Missing customer ID or page no" };
+    }
+    const per_page = data.per_page; // Adjust as needed
+    let query = db.collection("notifications") .where("customer_id", "==", data.user_id) .orderBy("created_at", "desc") .limit(per_page);
+     if (data.last_id && data.last_id !== "") {
+       const lastVisible = await db.collection("notifications").doc(data.last_id).get();
+        if (lastVisible.exists) {
+           query = query.startAfter(lastVisible); 
+          } 
+        } 
+        const customerDoc = await query.get();
+         const notifications = customerDoc.docs.map(doc => ({ 
+          id: doc.id, ...doc.data() 
+        }));
+    return {
+      status: 200,
+      message: "customer notification fetched successfully",
+      data: notifications,
+      page: data.per_page      
+    };
+  } catch (error) {
+    console.error("Error in getNotifications:", error);
+    return {
+      status: 500,
+      message: "Error fetching notifications",
+      error: error.message,
+    };
+  }
+}
+
 module.exports = {
   getCustomerEmails,
   addEmail,
@@ -471,5 +504,6 @@ module.exports = {
   deleteEmaliAccount,
   cartList,
   uploadimage,
-  getCustomerProfileData
+  getCustomerProfileData,
+  getNotifications
 };

@@ -493,6 +493,38 @@ router.post("/get_customer_profile_data", verifyToken, async (req, res) => {
   const result = await userService.getCustomerProfileData(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /user/api/v1/get_notifications:
+ *   post:
+ *     summary: Get customer notification
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - page_no
+ *             properties:
+ *                user_id:
+ *                 type: string
+ *                page_no:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: customer notification fetched successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/get_notifications", verifyToken, async (req, res) => {
+  const result = await userService.getNotifications(req.body);
+  res.status(result.status).json(result);
+});
 
 
 module.exports = router;
