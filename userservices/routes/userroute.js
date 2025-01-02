@@ -460,14 +460,39 @@ const uploadImageMiddleware = (req, res, next) => {
 };
 
 
-// router.post("/upload_profile_image", verifyToken, async (req, res) => {
-//   const result = await userService.updateEmaliAccount(req.body);
-//   res.status(result.status).json(result);
-// });
+
 router.post("/upload_profile_image", uploadImageMiddleware, userService.uploadimage);
 
 
-
+/**
+ * @swagger
+ * /user/api/v1/get_customer_profile_data:
+ *   post:
+ *     summary: Get customer profile data
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: customer profile data fetched successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/get_customer_profile_data", verifyToken, async (req, res) => {
+  const result = await userService.getCustomerProfileData(req.body);
+  res.status(result.status).json(result);
+});
 
 
 module.exports = router;

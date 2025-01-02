@@ -401,6 +401,25 @@ async function uploadimage(req, res) {
   return res;
 }
 
+async function getCustomerProfileData(data) {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing customer ID" };
+    }
+
+    const customerDoc = await db.collection("customers").doc(data.user_id).get();
+    const customerData = customerDoc.data();
+
+    return { status: 200,message:"customer profile data fetched successfully", customerData };
+  } catch (error) {
+    console.error("Error in getCustomerProfileData:", error);
+    return {
+      status: 500,
+      message: "Error fetching customer profile data",
+      error: error.message,
+    };
+  }
+}
 
 
 module.exports = {
@@ -416,5 +435,6 @@ module.exports = {
   updateEmaliAccount,
   deleteEmaliAccount,
   cartList,
-  uploadimage
+  uploadimage,
+  getCustomerProfileData
 };
