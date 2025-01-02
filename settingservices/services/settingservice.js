@@ -38,7 +38,27 @@ async function defaultPaymentMethod(data) {
 
 }
 
-module.exports = {
-  getVoucherList,
-  defaultPaymentMethod
-};
+async function makeDefaultPaymentMethod(data) {
+  try {
+    if (!data.user_id || !data.payment_method_id) {
+      return { status: 400, message: "Missing field user ID or payment method id" };
+    }
+
+    const customerRef = await db.collection("customers").doc(data.user_id).get();
+    const customerdoc = customerRef.data();
+    const methodID = customerdoc.payment_method_id;
+    if (methodID === data.payment_method_id) {
+      return { status: 200, message: "Payment method already default" };
+    }
+    await db.collection("customers").doc(data.user_id).update({ payment_method_id: data.payment_method_id });
+    return { status: 200, message: "Payment method updated successfully" };
+  } catch (error) {
+    console.error("Error in makeDefaultPaymentMethod:", error);
+    return { status: 500, message: "Error updating default payment method", error: error.message };
+  }
+}
+  module.exports = {
+    getVoucherList,
+    defaultPaymentMethod,
+    makeDefaultPaymentMethod
+  };

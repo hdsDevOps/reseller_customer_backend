@@ -356,5 +356,39 @@ router.post('/default_payment_method', verifyToken, async (req, res) => {
   const result = await settingService.defaultPaymentMethod(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /setting/api/v1/make_default_payment_method:
+ *   post:
+ *     summary: make default payment method for a customer
+ *     tags: [Setting]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - payment_method_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               payment_method_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Payment method updated successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/make_default_payment_method', verifyToken, async (req, res) => {
+  const result = await settingService.makeDefaultPaymentMethod(req.body);
+  res.status(result.status).json(result);
+});
 
 module.exports = router;
