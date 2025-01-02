@@ -1,4 +1,5 @@
 const { admin, db } = require("../firebaseConfig");
+const { v4: uuidv4 } = require('uuid');
 
 const getCustomerSubscription = async (data) => {
   try {
@@ -42,13 +43,21 @@ const addCustomerSubscription = async (data) => {
       return { status: 400, message: "Missing required fields" };
     }
 
-
+if(data.payment_details.length > 0){
+data.payment_details.forEach(element => {
+  element.uuid = uuidv4().replace(/-/g, '');
+});
+}else{
+  data.payment_details = [];
+}
     const newSubscription = {
       product_type: data.product_type,
       payment_cycle: data.payment_cycle,
       customer_id: data.customer_id,
       description: data.description,
       domain: data.domain,
+      payment_details: admin.firestore.FieldValue.arrayUnion(...data.payment_details),
+      plan_name_id: data.plan_name_id,
       last_payment: new Date(data.last_payment),
       next_payment: new Date(data.next_payment),
       payment_method: data.payment_method,
@@ -84,6 +93,20 @@ const updateCustomerSubscription = async (data) => {
     }
     if (data.hasOwnProperty('payment_cycle')) {
       updateValue.payment_cycle = data.payment_cycle;
+    }
+    if (data.hasOwnProperty('plan_name_id')) {
+      updateValue.plan_name_id = data.plan_name_id;
+    }
+    if (data.hasOwnProperty('payment_details') && data.payment_details.length > 0) {
+
+      if(data.payment_details.length > 0){
+        data.payment_details.forEach(element => {
+          element.uuid = uuidv4().replace(/-/g, '');
+        });
+        }else{
+          data.payment_details = [];
+        }      
+      updateValue.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
     }
 
 
