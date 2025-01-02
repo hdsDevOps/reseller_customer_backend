@@ -204,7 +204,7 @@ async function addStaff(data) {
     };
 
     const docRef = await db.collection("users").add(newStaff);
-
+    docRef.update({ searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`] });
     // Send welcome email
     const emailData = {
       email: data.email,
@@ -235,28 +235,44 @@ async function addStaff(data) {
 
 async function getStaffList(data) {
   try {
-    if (!data.user_id || !data.user_type_id) {
+    if (!data.user_id) {
       return { status: 400, message: "Missing required fields" };
     }
 
     let query = db
       .collection("users")
-      .where("customer_id", "==", data.user_id)
-      .where("user_type", "==", data.user_type_id);
-
-    // Search functionality if search_text is provided
-    if (data.search_text) {
-      const searchText = data.search_text.toLowerCase();
-      query = query.where("searchableIndex", "array-contains", searchText);
+      .where("customer_id", "==", data.user_id);
+    if (data.user_type_id != "" && data.user_type_id != null) {
+      query = query.where("user_type_id", "==", Number(data.user_type_id));
     }
 
-    const staffSnapshot = await query.get();
 
-    const staffList = staffSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      created_at: doc.data().created_at ? doc.data().created_at.toDate() : null,
-    }));
+    // Search functionality if search_text is provided
+    // if (data.search_text!="" && data.search_text!=null) {
+    //   const searchText = data.search_text.toLowerCase();
+    //   query = query.where("searchableIndex", "array-contains", searchText);
+    // }
+
+    const staffSnapshot = await query.get();
+    let search_text = data.search_text;
+    let staffList = [];
+    staffSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (search_text != "" && search_text != null) {
+        const searchText = search_text.toLowerCase();
+        if (data.searchableIndex.some((entry) => entry.toLowerCase().includes(searchText.toLowerCase()))) {
+
+          staffList.push({ id: doc.id, ...data, created_at: doc.data().created_at ? doc.data().created_at.toDate() : null, });
+        }
+      } else {
+        staffList.push({ id: doc.id, ...data, created_at: doc.data().created_at ? doc.data().created_at.toDate() : null, });
+      }
+    });
+    //  staffList = staffSnapshot.docs.map((doc) => ({
+    //   id: doc.id,
+    //   ...doc.data(),
+    //   created_at: doc.data().created_at ? doc.data().created_at.toDate() : null,
+    // }));
 
     return {
       status: 200,
