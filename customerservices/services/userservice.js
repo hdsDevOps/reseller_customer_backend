@@ -19,7 +19,7 @@ async function addEmail(data) {
       const { salt, hash } = hashPassword(email.password);
       email.salt = salt;
       email.passwordHash = hash;
-      email.uuid=email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
+      email.uuid = email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
     });
 
     const customerRef = db.collection("domains").doc(data.domain_id);
@@ -88,7 +88,7 @@ async function deleteEmaliAccount(data) {
     const customerDoc = await customerRef.get();
     const emails = customerDoc.data().emails || [];
 
-    
+
     const updatedEmails = emails.filter(email => email.uuid !== data.uuid);
     await customerRef.update({ emails: updatedEmails });
 
@@ -158,7 +158,7 @@ async function resetEmailPassword(data) {
 
 async function updateProfile(data) {
   try {
-    if (!data.id) {
+    if (!data.user_id) {
       return { status: 400, message: "Missing customer ID" };
     }
 
@@ -167,30 +167,33 @@ async function updateProfile(data) {
     };
 
     const fields = [
-      "firstname",
-      "lastname",
+      "first_name",
+      "last_name",
       "email",
-      "phone",
+      "phone_no",
       "address",
       "state",
+      "city",
       "country",
       "business_name",
       "business_state",
       "business_city",
-      "business_zipcode",
+      "business_zip_code",
     ];
 
     fields.forEach((field) => {
       if (data[field]) updateData[field] = data[field];
     });
 
-    if (data.password) {
-      const { salt, hash } = hashPassword(data.password);
-      updateData.salt = salt;
-      updateData.passwordHash = hash;
+    if (data.hasOwnProperty("password")) {
+      if (data.password) {
+        const { salt, hash } = hashPassword(data.password);
+        updateData.salt = salt;
+        updateData.passwordHash = hash;
+      }
     }
 
-    await db.collection("customers").doc(data.id).update(updateData);
+    await db.collection("customers").doc(data.user_id).update(updateData);
 
     return { status: 200, message: "Profile updated successfully" };
   } catch (error) {
@@ -271,7 +274,7 @@ async function updateCurrency(data) {
 
 
 
-module.exports = { 
+module.exports = {
   addEmail,
   makeEmailAdmin,
   resetEmailPassword,

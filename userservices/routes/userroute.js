@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const userService = require("../services/userservice");
 const { verifyToken } = require("../middleware/auth");
-
+const multer = require('multer');
+const path = require('path');
 /**
  * @swagger
  * /user/api/v1/emaillist:
@@ -202,22 +203,24 @@ router.post("/changeemailstatus", verifyToken, async (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - id
+ *               - user_id
  *             properties:
- *               id:
+ *               user_id:
  *                 type: string
- *               firstname:
+ *               first_name:
  *                 type: string
- *               lastname:
+ *               last_name:
  *                 type: string
  *               email:
  *                 type: string
- *               phone:
+ *               phone_no:
  *                 type: string
  *               address:
  *                 type: string
  *               state:
  *                 type: string
+ *               city:
+ *                type: string
  *               country:
  *                 type: string
  *               password:
@@ -228,7 +231,7 @@ router.post("/changeemailstatus", verifyToken, async (req, res) => {
  *                 type: string
  *               business_city:
  *                 type: string
- *               business_zipcode:
+ *               business_zip_code:
  *                 type: string
  *     responses:
  *       200:
@@ -428,5 +431,43 @@ router.post("/delete_email_account", verifyToken, async (req, res) => {
   const result = await userService.deleteEmaliAccount(req.body);
   res.status(result.status).json(result);
 });
+
+// Configure Multer
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    const allowedExtensions = ['.png', '.jpeg', '.jpg'];
+
+    if (!allowedExtensions.includes(fileExtension)) {
+      return cb(
+        new Error(`File upload only supports the following file types: ${allowedExtensions.join(', ')}`)
+      );
+    }
+    cb(null, true);
+  },
+});
+
+// Error-handling middleware for Multer
+const uploadImageMiddleware = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err instanceof Error) {
+      // If Multer or fileFilter throws an error, send a JSON response
+      return res.status(400).send({status: "error",message:err.message});
+    }
+    next();
+  });
+};
+
+
+// router.post("/upload_profile_image", verifyToken, async (req, res) => {
+//   const result = await userService.updateEmaliAccount(req.body);
+//   res.status(result.status).json(result);
+// });
+router.post("/upload_profile_image", uploadImageMiddleware, userService.uploadimage);
+
+
+
+
 
 module.exports = router;

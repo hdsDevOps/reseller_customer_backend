@@ -162,21 +162,23 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - id
+ *               - user_id
  *             properties:
- *               id:
+ *               user_id:
  *                 type: string
- *               firstname:
+ *               first_name:
  *                 type: string
- *               lastname:
+ *               last_name:
  *                 type: string
  *               email:
  *                 type: string
- *               phone:
+ *               phone_no:
  *                 type: string
  *               address:
  *                 type: string
  *               state:
+ *                 type: string
+ *               city:
  *                 type: string
  *               country:
  *                 type: string
@@ -188,7 +190,7 @@ router.post("/resetemailpassword", verifyToken, async (req, res) => {
  *                 type: string
  *               business_city:
  *                 type: string
- *               business_zipcode:
+ *               business_zip_code:
  *                 type: string
  *     responses:
  *       200:

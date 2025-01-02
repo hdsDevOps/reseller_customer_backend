@@ -1,6 +1,7 @@
-const { admin, db } = require("../firebaseConfig");
+const { admin, db, bucket } = require("../firebaseConfig");
 const { hashPassword } = require("../helper");
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 async function getCustomerEmails(data) {
   try {
@@ -42,7 +43,7 @@ async function addEmail(data) {
       const { salt, hash } = hashPassword(email.password);
       email.salt = salt;
       email.passwordHash = hash;
-      email.uuid=email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
+      email.uuid = email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
     });
 
     const customerRef = db.collection("domains").doc(data.domain_id);
@@ -234,27 +235,30 @@ async function updateProfile(data) {
     };
 
     const fields = [
-      "firstname",
-      "lastname",
+      "first_name",
+      "last_name",
       "email",
-      "phone",
+      "phone_no",
       "address",
       "state",
+      "city",
       "country",
       "business_name",
       "business_state",
       "business_city",
-      "business_zipcode",
+      "business_zip_code",
     ];
 
     fields.forEach((field) => {
       if (data[field]) updateData[field] = data[field];
     });
 
-    if (data.password) {
-      const { salt, hash } = hashPassword(data.password);
-      updateData.salt = salt;
-      updateData.passwordHash = hash;
+    if (data.hasOwnProperty("password")) {
+      if (data.password) {
+        const { salt, hash } = hashPassword(data.password);
+        updateData.salt = salt;
+        updateData.passwordHash = hash;
+      }
     }
 
     await db.collection("customers").doc(data.user_id).update(updateData);
@@ -269,7 +273,6 @@ async function updateProfile(data) {
     };
   }
 }
-
 async function addToCart(data) {
   try {
     if (!data.user_id || !data.products) {
@@ -351,6 +354,55 @@ async function updateCurrency(data) {
   }
 }
 
+async function uploadimage(req, res) {
+  try {
+    if (!req.body.user_id) {
+      return res.status(400).send({ status: "error", message: 'Missing user ID' });
+    }    
+    if (!req.file) {
+      return res.status(400).send({ status: "error", message: 'No file uploaded.' });
+    }
+    const fileExtension = path.extname(req.file.originalname);
+    const fileName = `${Date.now()}-HDS${fileExtension}`;
+    const file = bucket.file(fileName);
+
+    // Create a write stream to Firebase Storage
+    const blobStream = file.createWriteStream({
+      metadata: {
+        contentType: req.file.mimetype, // Use the uploaded file's MIME type
+      },
+    });
+
+    blobStream.on('error', (err) => {
+      console.error(err);
+      res.status(400).send({ status: "error", message: 'Error uploading file.' });
+    });
+
+    blobStream.on('finish', async () => {
+      // Make the file publicly accessible
+      await file.makePublic();
+
+      // Get the public URL
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+      const customerRef = db.collection("customers").doc(req.body.user_id);
+      await customerRef.update({ profile_image: publicUrl });
+
+
+      res.status(200).send({ message: 'File uploaded successfully!', url: publicUrl });
+    });
+
+    // End the stream by writing the file buffer
+    blobStream.end(req.file.buffer);
+  } catch (error) {
+    console.error(error);
+    res.status(400).send({ status: "error", message: 'Error handling file upload.' });
+  }
+  return res;
+}
+
+
+
 module.exports = {
   getCustomerEmails,
   addEmail,
@@ -363,5 +415,6 @@ module.exports = {
   changeemailstatus,
   updateEmaliAccount,
   deleteEmaliAccount,
-  cartList
+  cartList,
+  uploadimage
 };
