@@ -325,5 +325,36 @@ router.get('/voucherlist', verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /setting/api/v1/default_payment_method:
+ *   post:
+ *     summary: get default payment method for a customer
+ *     tags: [Setting]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: payment method fetched successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/default_payment_method', verifyToken, async (req, res) => {
+  const result = await settingService.defaultPaymentMethod(req.body);
+  res.status(result.status).json(result);
+});
 
 module.exports = router;
