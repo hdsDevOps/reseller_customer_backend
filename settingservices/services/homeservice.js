@@ -120,7 +120,7 @@ async function addSetting(data) {
 
 async function editSetting(data) {
   try {
-    if (!data.id || !Array.isArray(data.permissions) && || data.user_type) {
+    if (!data.id || !Array.isArray(data.permissions) || data.user_type) {
       return { status: 400, message: "Invalid input data" };
     }
 
