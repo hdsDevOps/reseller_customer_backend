@@ -247,7 +247,7 @@ async function getStaffList(data) {
       .collection("users")
       .where("customer_id", "==", data.user_id);
     if (data.user_type_id != "" && data.user_type_id != null) {
-      query = query.where("user_type_id", "==", Number(data.user_type_id));
+      query = query.where("user_type_id", "==", data.user_type_id);
     }
 
 
