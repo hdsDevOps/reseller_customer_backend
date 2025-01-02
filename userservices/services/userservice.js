@@ -459,11 +459,11 @@ async function updateCards(data) {
 
 async function getNotifications(data) {
   try {
-    if (!data.user_id && !data.per_page) {
-      return { status: 400, message: "Missing customer ID or page no" };
+    if (!data.user_id && !data.per_page && !data.is_read) {
+      return { status: 400, message: "Missing customer ID or per page or read status" };
     }
     const per_page = data.per_page; // Adjust as needed
-    let query = db.collection("notifications") .where("customer_id", "==", data.user_id) .orderBy("created_at", "desc") .limit(per_page);
+    let query = db.collection("notifications") .where("customer_id", "==", data.user_id).where("is_read","==",data.is_read) .orderBy("created_at", "desc") .limit(per_page);
      if (data.last_id && data.last_id !== "") {
        const lastVisible = await db.collection("notifications").doc(data.last_id).get();
         if (lastVisible.exists) {
