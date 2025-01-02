@@ -120,7 +120,7 @@ async function addSetting(data) {
 
 async function editSetting(data) {
   try {
-    if (!data.id || !Array.isArray(data.permissions)) {
+    if (!data.id || !Array.isArray(data.permissions) && || data.user_type) {
       return { status: 400, message: "Invalid input data" };
     }
 
@@ -133,6 +133,7 @@ async function editSetting(data) {
 
     await settingRef.update({
       permissions: data.permissions,
+      user_type: data.user_type,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
     return { status: 200, message: "Setting updated successfully" };
