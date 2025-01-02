@@ -1,3 +1,4 @@
+const { messaging } = require("firebase-admin");
 const { admin, db } = require("../firebaseConfig");
 const { hashPassword } = require("../helper");
 const { v4: uuidv4 } = require('uuid');
@@ -316,6 +317,28 @@ async function updateCards(data) {
   }
 }
 
+async function getCustomerCards(data) {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing customer ID" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerDoc = await customerRef.get();
+    const customerData = customerDoc.data();
+
+    const cards = customerData.cards || [];
+    return { status: 200,message:"List of cards fetching successfully", cards };
+  } catch (error) {
+    console.error("Error in getCustomerCards:", error);
+    return {
+      status: 500,
+      message: "Error fetching customer cards",
+      error: error.message,
+    };
+  }
+  
+}
 
 module.exports = {
   addEmail,
@@ -326,6 +349,7 @@ module.exports = {
   getCurrenciesList,
   updateEmaliAccount,
   deleteEmaliAccount,
-  updateCards
+  updateCards,
+  getCustomerCards
 
 };

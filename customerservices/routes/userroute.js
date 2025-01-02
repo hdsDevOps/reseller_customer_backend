@@ -393,5 +393,33 @@ router.post("/update_card", verifyToken, async (req, res) => {
   const result = await userService.updateCards(req.body);
   res.status(result.status).json(result);
 });
-
+/**
+ * @swagger
+ * /user/api/v1/card_list:
+ *   post:
+ *     summary: Get all card list
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: List of cards fetching successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/card_list", verifyToken, async (req, res) => {
+  const result = await userService.getCustomerCards(req.body);
+  res.status(result.status).json(result);
+});
 module.exports = router;
