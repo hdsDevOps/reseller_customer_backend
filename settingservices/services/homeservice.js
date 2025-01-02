@@ -208,7 +208,7 @@ async function addStaff(data) {
     };
 
     const docRef = await db.collection("users").add(newStaff);
-    docRef.update({ searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`] });
+    docRef.update({ searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.phone_no] });
     // Send welcome email
     const emailData = {
       email: data.email,
@@ -320,6 +320,7 @@ async function editStaff(data) {
       phone_no: data.phone_no,
       user_type_id: data.user_type_id,
       is_staff: true,
+      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.phone_no],
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
