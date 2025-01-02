@@ -59,16 +59,19 @@ async function submitContactForm(data) {
 
 async function getSettings(data) {
   try {
-    if (!data.user_type || !data.user_id) {
+    if (!data.user_id) {
       return { status: 400, message: "Missing user_type or user_id" };
     }
 
-    const settingsSnapshot = await admin
+    let query = admin
       .firestore()
       .collection("settings")
-      .where("user_type", "==", data.user_type)
-      .where("user_id", "==", data.user_id)
-      .get();
+      .where("user_id", "==", data.user_id);
+    if (data.hasOwnProperty('user_type') && data.user_type != "" && data.user_type != null) {
+      query = query.where("user_type", "==", data.user_type);
+
+    }
+    const settingsSnapshot = await query.get();
 
     const settings = settingsSnapshot.docs.map((doc) => ({
       id: doc.id,
