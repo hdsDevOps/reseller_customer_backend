@@ -50,5 +50,5 @@ app.use("/customerservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSp
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
-  console.log("Calling customer Services");
+  console.log("Calling customer Services PORT : ", PORT);
 });

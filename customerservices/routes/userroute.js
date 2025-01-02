@@ -362,4 +362,36 @@ router.post("/delete_email_account", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /user/api/v1/update_card:
+ *   post:
+ *     summary: Update customer profile
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               card:
+ *                 type: array
+ *     responses:
+ *       200:
+ *         description: card updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/update_card", verifyToken, async (req, res) => {
+  const result = await userService.updateCards(req.body);
+  res.status(result.status).json(result);
+});
+
 module.exports = router;

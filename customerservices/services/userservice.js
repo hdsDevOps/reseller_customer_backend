@@ -272,6 +272,49 @@ async function updateCurrency(data) {
   }
 }
 
+async function updateCards(data) {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing customer ID" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.user_id);    
+    const customerDoc = await customerRef.get();
+    const customerData = customerDoc.data();
+
+   
+    const existingCards = customerData.cards || [];
+    const newCard = data.card[0]; 
+
+    // Check if the new card already exists in the existingCards array
+    const cardExists = existingCards.some(card => card.card_id === newCard.card_id);
+
+    if (!cardExists) {
+      // If the new card doesn't have a uuid, generate one
+      if (!newCard.hasOwnProperty("uuid")) {
+        newCard.uuid = uuidv4().replace(/-/g, '');
+      }
+
+      // Update the customer document with the new card
+      await customerRef.update({
+        cards: admin.firestore.FieldValue.arrayUnion(newCard),
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return { status: 200, message: "Card updated successfully" };
+    } else {
+      return { status: 200, message: "Card already exists" };
+    }
+
+  } catch (error) {
+    console.error("Error in updateCards:", error);
+    return {
+      status: 500,
+      message: "Error updating card",
+      error: error.message,
+    };
+  }
+}
 
 
 module.exports = {
@@ -283,5 +326,6 @@ module.exports = {
   getCurrenciesList,
   updateEmaliAccount,
   deleteEmaliAccount,
+  updateCards
 
 };

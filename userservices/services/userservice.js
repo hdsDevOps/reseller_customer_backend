@@ -421,6 +421,41 @@ async function getCustomerProfileData(data) {
   }
 }
 
+async function updateCards(data) {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing customer ID" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.user_id).get();
+    const customerData = customerDoc.data();
+    const existingCards = customerData.cards || []; // Retrieve existing cards, default to an empty array if not present 
+    const newCard = data.card;
+
+    if (!existingCards.includes(newCard)) {
+      if (data.hasOwnProperty("card")) {
+        data.card.forEach((car) => {
+          data.card.uuid = car.hasOwnProperty("uuid") ? car.uuid : uuidv4().replace(/-/g, '');
+        });
+      }
+      await customerRef.update({
+        cards: admin.firestore.FieldValue.arrayUnion(data.card),
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      return { status: 200, message: "Card already exists" };
+    }
+
+    return { status: 200, message: "Card updated successfully" };
+  } catch (error) {
+    console.error("Error in updateCards:", error);
+    return {
+      status: 500,
+      message: "Error updating card",
+      error: error.message,
+    };
+  }
+}
 
 module.exports = {
   getCustomerEmails,
