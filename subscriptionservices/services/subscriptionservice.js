@@ -38,35 +38,52 @@ const getCustomerSubscription = async (data) => {
 }
 const addCustomerSubscription = async (data) => {
   try {
-
     if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status) {
       return { status: 400, message: "Missing required fields" };
     }
 
-if(data.payment_details.length > 0){
-data.payment_details.forEach(element => {
-  element.uuid = uuidv4().replace(/-/g, '');
-});
-}else{
-  data.payment_details = [];
-}
-    const newSubscription = {
-      product_type: data.product_type,
-      payment_cycle: data.payment_cycle,
-      customer_id: data.customer_id,
-      description: data.description,
-      domain: data.domain,
-      payment_details: admin.firestore.FieldValue.arrayUnion(...data.payment_details),
-      plan_name_id: data.plan_name_id,
-      last_payment: new Date(data.last_payment),
-      next_payment: new Date(data.next_payment),
-      payment_method: data.payment_method,
-      subscription_status: data.subscription_status
-    };
-    const docRef = await admin
-      .firestore()
-      .collection("customer_subscriptions")
-      .add(newSubscription);
+    if (data.payment_details.length > 0) {
+      data.payment_details.forEach(element => {
+        element.uuid = uuidv4().replace(/-/g, '');
+      });
+    } else {
+      data.payment_details = [];
+    }
+
+    // Using plain objects instead of arrays for newSubscription, subs, and trial
+    let newSubscription = {};
+    let subs = {};
+    let trial = {};
+
+    newSubscription.product_type = data.product_type;
+    subs.payment_cycle = newSubscription.payment_cycle = data.payment_cycle;
+    newSubscription.customer_id = data.customer_id;
+    newSubscription.description = data.description;
+    newSubscription.domain = data.domain;
+    newSubscription.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
+    newSubscription.plan_name_id = data.plan_name_id;
+    subs.last_payment = newSubscription.last_payment = new Date(data.last_payment);
+    subs.next_payment = newSubscription.next_payment = new Date(data.next_payment);
+    newSubscription.payment_method = data.payment_method;
+    subs.subscription_status = newSubscription.subscription_status = data.subscription_status;
+
+    if (data.hasOwnProperty('plan_name')) {
+      subs.plan_name = data.plan_name;
+    }
+    if (data.hasOwnProperty('is_trial')) {
+      trial.is_trial = data.is_trial;
+    }
+    if (data.hasOwnProperty('workspace_status')) {
+      subs.workspace_status = data.workspace_status;
+    }
+
+    const docRef = await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+
+    if (data.hasOwnProperty('plan_name') && data.plan_name == "google workspace") {
+      const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
+      await workspaceRef.update({ workspace: subs, ...trial });
+    }
+
     return { status: 200, message: "Customer subscription added successfully" };
   } catch (error) {
     console.error("Error in addCustomerSubscription:", error);
@@ -76,6 +93,7 @@ data.payment_details.forEach(element => {
       error: error.message
     };
   }
+
 }
 
 const updateCustomerSubscription = async (data) => {
@@ -99,13 +117,13 @@ const updateCustomerSubscription = async (data) => {
     }
     if (data.hasOwnProperty('payment_details') && data.payment_details.length > 0) {
 
-      if(data.payment_details.length > 0){
+      if (data.payment_details.length > 0) {
         data.payment_details.forEach(element => {
           element.uuid = uuidv4().replace(/-/g, '');
         });
-        }else{
-          data.payment_details = [];
-        }      
+      } else {
+        data.payment_details = [];
+      }
       updateValue.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
     }
 
