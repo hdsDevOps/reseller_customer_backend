@@ -526,5 +526,72 @@ router.post("/get_notifications", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /user/api/v1/update_notification_read_status:
+ *   post:
+ *     summary: Update notification read status
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - notification_id
+ *               - is_read
+ *             properties:
+ *               notification_id:
+ *                 type: string
+ *               is_read:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Notification read status updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/update_notification_read_status", verifyToken, async (req, res) => {
+  const result = await userService.updateNotificationReadStatus(req.body);
+  res.status(result.status).json(result);
+});
+
+/**
+ * @swagger
+ * /user/api/v1/update_notification_status_on_off:
+ *   post:
+ *     summary: Update notification setting on off status
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - status
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Notification setting updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/update_notification_status_on_off", verifyToken, async (req, res) => {
+  const result = await userService.makeNotificationStatusOnOff(req.body);
+  res.status(result.status).json(result);
+});
+
+
 
 module.exports = router;

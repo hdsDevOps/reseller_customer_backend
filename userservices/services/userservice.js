@@ -463,22 +463,22 @@ async function getNotifications(data) {
       return { status: 400, message: "Missing customer ID or per page or read status" };
     }
     const per_page = data.per_page; // Adjust as needed
-    let query = db.collection("notifications") .where("customer_id", "==", data.user_id).where("is_read","==",data.is_read) .orderBy("created_at", "desc") .limit(per_page);
-     if (data.last_id && data.last_id !== "") {
-       const lastVisible = await db.collection("notifications").doc(data.last_id).get();
-        if (lastVisible.exists) {
-           query = query.startAfter(lastVisible); 
-          } 
-        } 
-        const customerDoc = await query.get();
-         const notifications = customerDoc.docs.map(doc => ({ 
-          id: doc.id, ...doc.data() 
-        }));
+    let query = db.collection("notifications").where("customer_id", "==", data.user_id).where("is_read", "==", data.is_read).orderBy("created_at", "desc").limit(per_page);
+    if (data.last_id && data.last_id !== "") {
+      const lastVisible = await db.collection("notifications").doc(data.last_id).get();
+      if (lastVisible.exists) {
+        query = query.startAfter(lastVisible);
+      }
+    }
+    const customerDoc = await query.get();
+    const notifications = customerDoc.docs.map(doc => ({
+      id: doc.id, ...doc.data()
+    }));
     return {
       status: 200,
       message: "customer notification fetched successfully",
       data: notifications,
-      page: data.per_page      
+      page: data.per_page
     };
   } catch (error) {
     console.error("Error in getNotifications:", error);
@@ -488,6 +488,57 @@ async function getNotifications(data) {
       error: error.message,
     };
   }
+}
+
+async function updateNotificationReadStatus(data) {
+  try {
+    if (!data.is_read || !data.notification_id) {
+      return { status: 400, message: "Missing status or notification ID" };
+    }
+
+    const notificationRef = db.collection("notifications").doc(data.notification_id);
+    await notificationRef.update({ is_read: data.is_read });
+
+    return { status: 200, message: "Notification read status updated successfully" };
+  } catch (error) {
+    console.error("Error in updateNotificationReadStatus:", error);
+    return {
+      status: 500,
+      message: "Error updating notification read status",
+      error: error.message,
+    };
+  }
+
+}
+async function makeNotificationStatusOnOff(data) {
+  try {
+    if (!data.user_id || !data.status) {
+      return { status: 400, message: "Missing user ID" };
+    }
+    const querySnapshot = await db.collection("notification_settings").where("userId", "==", data.user_id).get();
+    if (!querySnapshot.empty) {
+      await Promise.all(querySnapshot.docs.map(doc => doc.ref.update({ status: data.status, updatedAt: admin.firestore.FieldValue.serverTimestamp() })));
+      return { status: 200, message: "Notification setting updated successfully" };
+    } else {
+      querySnapshot.db.collection("notification_settings").add(
+        {
+          userId: data.user_id,
+          status: data.status,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      return { status: 200, message: "Notification setting updated successfully" };
+    }
+
+  } catch (error) {
+    console.error("Error in makeNotificationStatusOnOff:", error);
+    return {
+      status: 500,
+      message: "Error updating notification setting status",
+      error: error.message,
+    };
+  }
+
 }
 
 module.exports = {
@@ -505,5 +556,7 @@ module.exports = {
   cartList,
   uploadimage,
   getCustomerProfileData,
-  getNotifications
+  getNotifications,
+  updateNotificationReadStatus,
+  makeNotificationStatusOnOff
 };
