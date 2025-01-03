@@ -103,14 +103,31 @@ const updateCustomerSubscription = async (data) => {
     }
 
     const updateValue = {};
+    let subs = {};
+    let trial = {};
+
+
+    subs.subscription_status = updateValue.subscription_status = data.subscription_status;
+    subs.payment_cycle = updateValue.payment_cycle = data.payment_cycle;
+    subs.last_payment = updateValue.last_payment = new Date(data.last_payment);
+    subs.next_payment = updateValue.next_payment = new Date(data.next_payment);
+
+    if (data.hasOwnProperty('plan_name')) {
+      subs.plan_name = data.plan_name;
+    }
+    if (data.hasOwnProperty('is_trial')) {
+      trial.is_trial = data.is_trial;
+    }
+    if (data.hasOwnProperty('workspace_status')) {
+      subs.workspace_status = data.workspace_status;
+    }
+
+
     if (data.hasOwnProperty('payment_method')) {
       updateValue.payment_method = data.payment_method;
     }
     if (data.hasOwnProperty('subscription_status')) {
       updateValue.subscription_status = data.subscription_status;
-    }
-    if (data.hasOwnProperty('payment_cycle')) {
-      updateValue.payment_cycle = data.payment_cycle;
     }
     if (data.hasOwnProperty('plan_name_id')) {
       updateValue.plan_name_id = data.plan_name_id;
@@ -124,14 +141,19 @@ const updateCustomerSubscription = async (data) => {
       } else {
         data.payment_details = [];
       }
-      updateValue.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
+      updateValue.payment_details = data.payment_details;
     }
-
+    updateValue.reason = data.reason;
 
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
     const subscription = subscriptionDoc.data();
     await subscriptionRef.update({ ...subscription, ...updateValue });
+
+    if (data.hasOwnProperty('plan_name') && data.plan_name == "google workspace") {
+      const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
+      await workspaceRef.update({ workspace: subs, ...trial });
+    }
 
     return { status: 200, message: "Customer subscription updated successfully", subscription_id: data.subscription_id };
 
