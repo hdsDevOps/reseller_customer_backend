@@ -103,23 +103,33 @@ const updateCustomerSubscription = async (data) => {
     }
 
     const updateValue = {};
-    let subs = {};
+    let workspace = {};
     let trial = {};
 
 
-    subs.subscription_status = updateValue.subscription_status = data.subscription_status;
-    subs.payment_cycle = updateValue.payment_cycle = data.payment_cycle;
-    subs.last_payment = updateValue.last_payment = new Date(data.last_payment);
-    subs.next_payment = updateValue.next_payment = new Date(data.next_payment);
+    if (data.hasOwnProperty('subscription_status')) {
+      workspace.subscription_status = updateValue.subscription_status = data.subscription_status;
+    }
+    if (data.hasOwnProperty('payment_cycle')) {
+      workspace.payment_cycle = updateValue.payment_cycle = data.payment_cycle;
+    }
+    if (data.hasOwnProperty('last_payment')) {
+      workspace.last_payment = updateValue.last_payment = new Date(data.last_payment);
+    }
+    if (data.hasOwnProperty('next_payment')) {
+      workspace.next_payment = updateValue.next_payment = new Date(data.next_payment);
+    }
+
+
 
     if (data.hasOwnProperty('plan_name')) {
-      subs.plan_name = data.plan_name;
+      workspace.plan_name = data.plan_name;
     }
     if (data.hasOwnProperty('is_trial')) {
       trial.is_trial = data.is_trial;
     }
     if (data.hasOwnProperty('workspace_status')) {
-      subs.workspace_status = data.workspace_status;
+      workspace.workspace_status = data.workspace_status;
     }
 
 
@@ -141,9 +151,11 @@ const updateCustomerSubscription = async (data) => {
       } else {
         data.payment_details = [];
       }
-      updateValue.payment_details = data.payment_details;
+      updateValue.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
     }
-    updateValue.reason = data.reason;
+    if (data.hasOwnProperty('reason')) {
+      workspace.reason = updateValue.reason = data.reason;
+    }
 
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
@@ -151,8 +163,9 @@ const updateCustomerSubscription = async (data) => {
     await subscriptionRef.update({ ...subscription, ...updateValue });
 
     if (data.hasOwnProperty('plan_name') && data.plan_name == "google workspace") {
+
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
-      await workspaceRef.update({ workspace: subs, ...trial });
+      await workspaceRef.update({ workspace, ...trial });
     }
 
     return { status: 200, message: "Customer subscription updated successfully", subscription_id: data.subscription_id };
