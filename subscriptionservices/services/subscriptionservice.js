@@ -77,9 +77,21 @@ const addCustomerSubscription = async (data) => {
       subs.workspace_status = data.workspace_status;
     }
 
-    const docRef = await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+    const cusDocref = db.collection("customer_subscriptions").where("product_type", "==", "google workspace").where("customer_id", "==", data.customer_id);
+    const cusDocSnapshot = await cusDocref.get();
+    if (cusDocSnapshot.empty) {
+      await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+    } else {
+      cusDocSnapshot.forEach(async (doc) => {
+        const cusDoc = doc.data();
+        const docRef = db.collection("customer_subscriptions").doc(doc.id);
+        await docRef.update({ ...cusDoc, ...newSubscription });
+      });
+    }
 
-    if (data.hasOwnProperty('plan_name') && data.plan_name == "google workspace") {
+
+
+    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
       await workspaceRef.update({ workspace: subs, ...trial });
     }
@@ -162,7 +174,7 @@ const updateCustomerSubscription = async (data) => {
     const subscription = subscriptionDoc.data();
     await subscriptionRef.update({ ...subscription, ...updateValue });
 
-    if (data.hasOwnProperty('plan_name') && data.plan_name == "google workspace") {
+    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
 
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
       await workspaceRef.update({ workspace, ...trial });
