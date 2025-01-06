@@ -106,7 +106,11 @@ const addCustomerSubscription = async (data) => {
 
     if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
-      await workspaceRef.update({ workspace: subs, ...trial, 'license_usage': data.license_usage });
+      if (data.hasOwnProperty('license_usage') && data.license_usage != "" && data.license_usage != null) {
+        await workspaceRef.update({ workspace: subs, ...trial, 'license_usage': data.license_usage });
+      } else {
+        await workspaceRef.update({ workspace: subs, ...trial });
+      }
     }
 
     return { status: 200, message: "Customer subscription added successfully" };
@@ -192,7 +196,7 @@ const updateCustomerSubscription = async (data) => {
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
       await workspaceRef.update({ workspace, ...trial });
     }
-    if (data.hasOwnProperty('license_usage')) {
+    if (data.hasOwnProperty('license_usage') && data.license_usage != "" && data.license_usage != null) {
       const workspaceRef = db.collection("customers").doc(data.customer_id);
       await workspaceRef.update({ "license_usage": data.license_usage });
     }
