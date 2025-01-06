@@ -24,6 +24,7 @@ const getCustomerSubscription = async (data) => {
     const subscriptions = [];
     snapshot.forEach(doc => {
       const subscription = doc.data();
+      subscription.id = doc.id;
       subscriptions.push(subscription);
     });
     return { status: 200, message: "Customer subscription fetched successfully", subscriptions };
