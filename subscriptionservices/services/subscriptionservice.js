@@ -192,6 +192,10 @@ const updateCustomerSubscription = async (data) => {
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
       await workspaceRef.update({ workspace, ...trial });
     }
+    if (data.hasOwnProperty('license_usage')) {
+      const workspaceRef = db.collection("customers").doc(data.customer_id);
+      await workspaceRef.update({ "license_usage": data.license_usage });
+    }
 
     return { status: 200, message: "Customer subscription updated successfully", subscription_id: data.subscription_id };
 
@@ -254,7 +258,7 @@ const updateLicenseUsage = async (data) => {
     await customerRef.update({ "license_usage": data.license_usage });
 
 
-    return { status: 200, message: "Customer subscription license usage updated successfully"};
+    return { status: 200, message: "Customer subscription license usage updated successfully" };
 
   } catch (error) {
     console.error("Error in updateLicenseUsage:", error);
