@@ -130,5 +130,41 @@ router.post('/update_customer_subscription', async (req, res) => {
   // res.status(result.status).json(result);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /user/api/v1/change_auto_renewal_status:
+ *   post:
+ *     summary: Change subscription auto renewal status
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscription_id
+ *               - status
+ *             properties:
+ *               subscription_id:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Customer subscription status updated successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post('/change_auto_renewal_status', async (req, res) => {
+  const result = await subscriptionservice.changeAutoRenewalStatus(req.body);
+  // res.status(result.status).json(result);
+  res.status(result.status).json(result);
+});
+
+
+
+
+
 
 module.exports = router;

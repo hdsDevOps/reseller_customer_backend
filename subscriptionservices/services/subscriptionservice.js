@@ -204,9 +204,46 @@ const updateCustomerSubscription = async (data) => {
   }
 }
 
+const changeAutoRenewalStatus = async (data) => {
+  try {
+    if (!data.subscription_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    let workspace = {};
+
+    if (data.hasOwnProperty('status')) {
+      workspace = data.status;
+    } 
+
+    const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
+    const subscriptionDoc = await subscriptionRef.get();
+    const subscription = subscriptionDoc.data();
+    await subscriptionRef.update({ ...subscription, ...workspace });
+
+    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
+
+      const workspaceRef = admin.firestore().collection("customers").doc(subscription.customer_id);
+      const workspaceSnap = await workspaceRef.get();
+      const workspaceDoc = workspaceSnap.data();
+      await workspaceRef.update({ "workspace.subscription_status":workspace });
+    }
+
+    return { status: 200, message: "Customer subscription status updated successfully", subscription_id: data.subscription_id };
+
+  } catch (error) {
+    console.error("Error in changeAutoRenewalStatus:", error);
+    return {
+      status: 500,
+      message: "Error updating customer subscription",
+      error: error.message
+    };
+  }
+}
+
 
 module.exports = {
   getCustomerSubscription,
   addCustomerSubscription,
-  updateCustomerSubscription
+  updateCustomerSubscription,
+  changeAutoRenewalStatus
 };
