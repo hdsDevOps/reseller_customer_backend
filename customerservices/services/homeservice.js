@@ -527,6 +527,30 @@ async function gethomedata() {
     };
   }
 }
+async function getBanners() {
+  try {
+    let data = {};
+    const document = await db.collection("banners").get();
+    const documentdata = document.docs.reduce((acc, doc) => {
+      acc[doc.id] = { ...doc.data() };
+      return acc;
+    }, {});
+
+
+    return {
+      status: 200,
+      message: "data retrieved successfully",
+      data: documentdata,
+    };
+  } catch (error) {
+    console.error("Error in getBanners:", error);
+    return {
+      status: 500,
+      message: "Error retrieving data",
+      error: error.message,
+    };
+  }
+}
 module.exports = {
   submitContactForm,
   getSettings,
@@ -542,7 +566,8 @@ module.exports = {
   getBillingHistory,
   getsubscriptiondata,
   getfaqs,
-  gethomedata
+  gethomedata,
+  getBanners
 };
 
 

@@ -635,6 +635,26 @@ router.get('/gethomedata', async (req, res) => {
     res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
   }
 });
+/**
+ * @swagger
+ * /home/api/v1/get_banners:
+ *   get:
+ *     summary: Get banner list
+ *     tags: [Home]
+ *     responses:
+ *       200:
+ *         description: data retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/get_banners', async (req, res) => {
+  try {
+    const result = await homeService.getBanners();
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
+  }
+});
 
 
 module.exports = router;
