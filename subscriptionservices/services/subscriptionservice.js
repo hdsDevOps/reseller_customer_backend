@@ -68,8 +68,8 @@ const addCustomerSubscription = async (data) => {
     subs.subscription_status = newSubscription.subscription_status = data.subscription_status;
     // subs.license_usage  = data.license_usage;
 
-    if (data.hasOwnProperty('plan_name')) {
-      subs.plan_name = data.plan_name;
+    if (data.hasOwnProperty('plan_name_id')) {
+      subs.plan_name_id = data.plan_name_id;
     }
     if (data.hasOwnProperty('is_trial')) {
       trial.is_trial = data.is_trial;
@@ -151,8 +151,8 @@ const updateCustomerSubscription = async (data) => {
 
 
 
-    if (data.hasOwnProperty('plan_name')) {
-      workspace.plan_name = data.plan_name;
+    if (data.hasOwnProperty('plan_name_id')) {
+      workspace.plan_name_id = data.plan_name_id;
     }
     if (data.hasOwnProperty('is_trial')) {
       trial.is_trial = data.is_trial;
