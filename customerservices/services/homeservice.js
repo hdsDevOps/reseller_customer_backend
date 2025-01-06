@@ -398,11 +398,53 @@ async function updatePaymentMethod(data) {
     };
   }
 }
+async function addBillingData(data) {
+  try {
+    // Input validation
+    if (
+      !data.user_id ||
+      !data.transaction_id ||
+      !data.invoice) {
+      return { status: 400, message: "Missing required fields" };
+    }
+    // Create new staff document
+    const newBill = {
+      user_id: data.user_id,
+      date: new Date(data.date),
+      transaction_id: data.transaction_id,
+      invoice: data.invoice,
+      product_type: data.product_type,
+      description: data.description,
+      domain: data.domain,
+      payment_method: data.payment_method,
+      payment_status: data.payment_status,
+      amount: data.amount,
+      transaction_data: data.transaction_data,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await db.collection("billing_history").add(newBill);
+
+
+    return {
+      status: 200,
+      message: "Bill data added successfully",
+      id: docRef.id,
+    };
+  } catch (error) {
+    console.error("Error in addBillingData:", error);
+    return {
+      status: 500,
+      message: "Error adding bill",
+      error: error.message,
+    };
+  }
+}
 
 async function getBillingHistory(data) {
   try {
     if (
-      !data.user_id 
+      !data.user_id
     ) {
       return { status: 400, message: "Missing required fields" };
     }
@@ -433,7 +475,7 @@ async function getBillingHistory(data) {
     return {
       status: 200,
       message: "Billing history retrieved successfully",
-      data: billingHistory     
+      data: billingHistory
     };
   } catch (error) {
     console.error("Error in getBillingHistory:", error);
@@ -567,7 +609,8 @@ module.exports = {
   getsubscriptiondata,
   getfaqs,
   gethomedata,
-  getBanners
+  getBanners,
+  addBillingData
 };
 
 

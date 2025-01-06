@@ -411,6 +411,69 @@ router.post('/updatepaymentmethod', async (req, res) => {
 
 /**
  * @swagger
+ * /home/api/v1/add_billing_data:
+ *   post:
+ *     summary: add billing data against a particular customer
+ *     tags: [Home]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - date
+ *               - transaction_id
+ *               - invoice
+ *               - product_type
+ *               - description
+ *               - domain
+ *               - payment_method
+ *               - payment_status
+ *               - amount
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 description: Customer ID
+ *               date:
+ *                 type: string
+ *               domain:
+ *                 type: string
+ *               transaction_id:
+ *                 type: string
+ *               invoice:
+ *                 type: string
+ *               product_type:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               payment_method:
+ *                 type: string
+ *               payment_status:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Billing data added successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Customer not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/add_billing_data', async (req, res) => {
+  try {
+    const result = await homeService.addBillingData(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error adding billing data", error: error.message });
+  }
+});
+/**
+ * @swagger
  * /home/api/v1/getbillinghistory:
  *   post:
  *     summary: Get all billing history list against a particular customer
