@@ -76,19 +76,31 @@ const addCustomerSubscription = async (data) => {
     if (data.hasOwnProperty('workspace_status')) {
       subs.workspace_status = data.workspace_status;
     }
-
-    const cusDocref = db.collection("customer_subscriptions").where("product_type", "==", "google workspace").where("customer_id", "==", data.customer_id);
-    const cusDocSnapshot = await cusDocref.get();
-    if (cusDocSnapshot.empty) {
-      await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+    if (data.product_type == "google workspace") {
+      const cusDocref = db.collection("customer_subscriptions").where("product_type", "==", "google workspace").where("customer_id", "==", data.customer_id);
+      const cusDocSnapshot = await cusDocref.get();
+      if (cusDocSnapshot.empty) {
+        await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+      } else {
+        cusDocSnapshot.forEach(async (doc) => {
+          const cusDoc = doc.data();
+          const docRef = db.collection("customer_subscriptions").doc(doc.id);
+          await docRef.update({ ...cusDoc, ...newSubscription });
+        });
+      }
     } else {
-      cusDocSnapshot.forEach(async (doc) => {
-        const cusDoc = doc.data();
-        const docRef = db.collection("customer_subscriptions").doc(doc.id);
-        await docRef.update({ ...cusDoc, ...newSubscription });
-      });
+      const cusDocref = db.collection("customer_subscriptions").where("domain", "array-contains", data.domain).where("customer_id", "==", data.customer_id);
+      const cusDocSnapshot = await cusDocref.get();
+      if (cusDocSnapshot.empty) {
+        await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+      } else {
+        cusDocSnapshot.forEach(async (doc) => {
+          const cusDoc = doc.data();
+          const docRef = db.collection("customer_subscriptions").doc(doc.id);
+          await docRef.update({ ...cusDoc, ...newSubscription });
+        });
+      }
     }
-
 
 
     if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
