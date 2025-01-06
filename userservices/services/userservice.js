@@ -464,7 +464,7 @@ async function getNotifications(data) {
     }
     const per_page = data.per_page; // Adjust as needed
     let query = db.collection("notifications").where("customer_id", "==", data.user_id)
-    if (data.hasOwnProperty("is_read")) {
+    if (data.hasOwnProperty("is_read") && (data.is_read != "" || data.is_read != null)) {
       query = query.where("is_read", "==", data.is_read);
     }
 
