@@ -422,4 +422,71 @@ router.post("/card_list", verifyToken, async (req, res) => {
   const result = await userService.getCustomerCards(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /user/api/v1/delete_card:
+ *   post:
+ *     summary: delete card
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - rec_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               rec_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: card deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/delete_card", verifyToken, async (req, res) => {
+  const result = await userService.deleteCard(req.body);
+  res.status(result.status).json(result);
+});
+/**
+ * @swagger
+ * /user/api/v1/make_defaulr_card:
+ *   post:
+ *     summary: make default card
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - rec_id
+ *               - is_default
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               rec_id:
+ *                 type: string
+ *               is_default:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: card make default successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/make_default_card", verifyToken, async (req, res) => {
+  const result = await userService.makeDefaultCard(req.body);
+  res.status(result.status).json(result);
+});
 module.exports = router;

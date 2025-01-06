@@ -279,13 +279,13 @@ async function updateCards(data) {
       return { status: 400, message: "Missing customer ID" };
     }
 
-    const customerRef = db.collection("customers").doc(data.user_id);    
+    const customerRef = db.collection("customers").doc(data.user_id);
     const customerDoc = await customerRef.get();
     const customerData = customerDoc.data();
 
-   
+
     const existingCards = customerData.cards || [];
-    const newCard = data.card[0]; 
+    const newCard = data.card[0];
 
     // Check if the new card already exists in the existingCards array
     const cardExists = existingCards.some(card => card.card_id === newCard.card_id);
@@ -295,7 +295,7 @@ async function updateCards(data) {
       if (!newCard.hasOwnProperty("uuid")) {
         newCard.uuid = uuidv4().replace(/-/g, '');
       }
-
+      newCard.is_default = false;
       // Update the customer document with the new card
       await customerRef.update({
         cards: admin.firestore.FieldValue.arrayUnion(newCard),
@@ -328,7 +328,7 @@ async function getCustomerCards(data) {
     const customerData = customerDoc.data();
 
     const cards = customerData.cards || [];
-    return { status: 200,message:"List of cards fetching successfully", cards };
+    return { status: 200, message: "List of cards fetching successfully", cards };
   } catch (error) {
     console.error("Error in getCustomerCards:", error);
     return {
@@ -337,7 +337,66 @@ async function getCustomerCards(data) {
       error: error.message,
     };
   }
-  
+
+}
+async function deleteCard(data) {
+
+  try {
+    if (!data.user_id || !data.rec_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerDoc = await customerRef.get();
+    const cards = customerDoc.data().cards || [];
+
+
+    const updatedcards = cards.filter(card => card.uuid !== data.rec_id);
+    await customerRef.update({ cards: updatedcards });
+
+    return { status: 200, message: "Card deleted successfully" };
+  } catch (error) {
+    console.error("Error in deleteCard:", error);
+    return {
+      status: 500,
+      message: "Error deleting card",
+      error: error.message,
+    };
+  }
+
+}
+async function makeDefaultCard(data) {
+
+  try {
+    if (!data.user_id || !data.rec_id || !data.is_default) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerDoc = await customerRef.get();
+    const cards = customerDoc.data().cards || [];
+
+
+    const updatedCards = cards.map(card => {
+      if (card.uuid === data.rec_id) {       
+        card.is_default = data.is_default;
+      } else {
+        card.is_default = false;
+      }
+      return card;
+    });
+
+    await customerRef.update({ cards: updatedCards });
+    return { status: 200, message: "Card make default successfully" };
+  } catch (error) {
+    console.error("Error in makeDefaultCard:", error);
+    return {
+      status: 500,
+      message: "Error make default card",
+      error: error.message,
+    };
+  }
+
 }
 
 module.exports = {
@@ -350,6 +409,8 @@ module.exports = {
   updateEmaliAccount,
   deleteEmaliAccount,
   updateCards,
-  getCustomerCards
+  getCustomerCards,
+  deleteCard,
+  makeDefaultCard
 
 };
