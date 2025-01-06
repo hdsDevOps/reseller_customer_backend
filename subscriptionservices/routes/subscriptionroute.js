@@ -60,6 +60,7 @@ router.post('/get_customer_subscription', async (req, res) => {
  *               - last_payment
  *               - next_payment
  *               - payment_method
+ *               - license_usage
  *               - subscription_status
  *             properties:
  *               product_type:
@@ -79,6 +80,8 @@ router.post('/get_customer_subscription', async (req, res) => {
  *               payment_method:
  *                 type: string
  *               subscription_status:
+ *                 type: string
+ *               license_usage:
  *                 type: string
  *     responses:
  *       200:
@@ -162,6 +165,37 @@ router.post('/change_auto_renewal_status', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /user/api/v1/update_license_usage:
+ *   post:
+ *     summary: update subscription license usage
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - license_usage
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *               license_usage:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Customer subscription license usage successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post('/update_license_usage', async (req, res) => {
+  const result = await subscriptionservice.updateLicenseUsage(req.body);
+  // res.status(result.status).json(result);
+  res.status(result.status).json(result);
+});
 
 
 

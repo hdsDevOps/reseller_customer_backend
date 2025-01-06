@@ -8,8 +8,7 @@ async function adddomain(data) {
       !data.domain_name ||
       !data.domain_type ||
       !data.subscription_id||
-      !data.business_email||
-      !data.license_usage||
+      !data.business_email||      
       !data.plan||
       !data.payment_method||
       !data.domain_status||
@@ -27,7 +26,6 @@ async function adddomain(data) {
       subscription_id: data.subscription_id,
       business_name: data.business_name,
       business_email: data.business_email,
-      license_usage: data.license_usage,
       plan: data.plan,
       payment_method: data.payment_method,
       domain_status: data.domain_status,

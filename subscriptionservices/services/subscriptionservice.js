@@ -38,7 +38,7 @@ const getCustomerSubscription = async (data) => {
 }
 const addCustomerSubscription = async (data) => {
   try {
-    if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status) {
+    if (!data.product_type || !data.payment_cycle || !data.customer_id || !data.description || !data.last_payment || !data.next_payment || !data.payment_method || !data.subscription_status || !data.license_usage) {
       return { status: 400, message: "Missing required fields" };
     }
 
@@ -66,6 +66,7 @@ const addCustomerSubscription = async (data) => {
     subs.next_payment = newSubscription.next_payment = new Date(data.next_payment);
     newSubscription.payment_method = data.payment_method;
     subs.subscription_status = newSubscription.subscription_status = data.subscription_status;
+    // subs.license_usage  = data.license_usage;
 
     if (data.hasOwnProperty('plan_name')) {
       subs.plan_name = data.plan_name;
@@ -105,7 +106,7 @@ const addCustomerSubscription = async (data) => {
 
     if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
       const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
-      await workspaceRef.update({ workspace: subs, ...trial });
+      await workspaceRef.update({ workspace: subs, ...trial, 'license_usage': data.license_usage });
     }
 
     return { status: 200, message: "Customer subscription added successfully" };
@@ -213,7 +214,7 @@ const changeAutoRenewalStatus = async (data) => {
 
     if (data.hasOwnProperty('status')) {
       workspace = data.status;
-    } 
+    }
 
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
@@ -225,7 +226,7 @@ const changeAutoRenewalStatus = async (data) => {
       const workspaceRef = admin.firestore().collection("customers").doc(subscription.customer_id);
       const workspaceSnap = await workspaceRef.get();
       const workspaceDoc = workspaceSnap.data();
-      await workspaceRef.update({ "workspace.subscription_status":workspace });
+      await workspaceRef.update({ "workspace.subscription_status": workspace });
     }
 
     return { status: 200, message: "Customer subscription status updated successfully", subscription_id: data.subscription_id };
@@ -240,10 +241,35 @@ const changeAutoRenewalStatus = async (data) => {
   }
 }
 
+const updateLicenseUsage = async (data) => {
+  try {
+    if (!data.user_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+
+    const customerRef = db.collection("customers").doc(data.user_id);
+    const customerDoc = await customerRef.get();
+    const customers = customerDoc.data();
+    await customerRef.update({ "license_usage": data.license_usage });
+
+
+    return { status: 200, message: "Customer subscription license usage updated successfully"};
+
+  } catch (error) {
+    console.error("Error in updateLicenseUsage:", error);
+    return {
+      status: 500,
+      message: "Error updating customer subscription license usage",
+      error: error.message
+    };
+  }
+}
 
 module.exports = {
   getCustomerSubscription,
   addCustomerSubscription,
   updateCustomerSubscription,
-  changeAutoRenewalStatus
+  changeAutoRenewalStatus,
+  updateLicenseUsage
 };
