@@ -227,9 +227,11 @@ async function changeemailstatus(data) {
 async function updateProfile(data) {
   try {
     if (!data.user_id) {
-      return { status: 400, message: "Missing customer ID" };
+      return { status: 400, message: "Missing  ID" };
     }
-
+    if (data.hasOwnProperty("is_staff") && data.is_staff == true) {
+      return await updateStaffProfile(data);
+    }
     const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -545,7 +547,64 @@ async function makeNotificationStatusOnOff(data) {
   }
 
 }
+async function updateStaffProfile(data) {
+  try {
+    if (!data.user_id || !data.staff_id) {
+      return { status: 400, message: "Missing  ID" };
+    }
 
+    const updateData = {
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    const custupdateData = {
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const stafffields = [
+      "first_name",
+      "last_name",
+      "email",
+      "phone_no",
+      "address",
+      "state",
+      "city",
+      "country"
+    ];
+    const customerfields = [
+      "business_name",
+      "business_state",
+      "business_city",
+      "business_zip_code",
+    ];
+
+    stafffields.forEach((field) => {
+      if (data[field]) updateData[field] = data[field];
+    });
+    customerfields.forEach((field) => {
+      if (data[field]) custupdateData[field] = data[field];
+    });
+
+    if (data.hasOwnProperty("password")) {
+      if (data.password) {
+        const { salt, hash } = hashPassword(data.password);
+        updateData.salt = salt;
+        updateData.passwordHash = hash;
+      }
+    }
+
+    await db.collection("users").doc(data.staff_id).update(updateData);
+    await db.collection("customers").doc(data.user_id).update(custupdateData);
+
+    return { status: 200, message: "Profile updated successfully" };
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
+    return {
+      status: 500,
+      message: "Error updating profile",
+      error: error.message,
+    };
+  }
+}
 module.exports = {
   getCustomerEmails,
   addEmail,
