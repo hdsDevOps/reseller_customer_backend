@@ -62,7 +62,7 @@ async function registerCustomer(data) {
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
       });
     // Send OTP email
-    await sendOTPEmail(data.email, otp);   
+    await sendOTPEmail(data.email, otp);
     return {
       status: 200,
       message:
@@ -180,12 +180,15 @@ async function loginCustomer(data) {
       .get();
 
     if (customerDoc.empty) {
-      return { status: 400, message: "Invalid email or password" };
+      return await staffLogin(data);
+      // if (customerDoc.empty) {
+      //   return { status: 400, message: "Invalid email or password" };
+      // }
+
     }
 
     const customerData = customerDoc.docs[0].data();
     const customerId = customerDoc.docs[0].id;
-
     const isValidPassword = verifyPassword(
       data.password,
       customerData.salt,
@@ -193,7 +196,8 @@ async function loginCustomer(data) {
     );
 
     if (!isValidPassword) {
-      return { status: 400, message: "Invalid email or password" };
+      return await staffLogin(data);
+      // return { status: 400, message: "Invalid email or password" };
     }
 
     const otp = generateOTP();
@@ -215,6 +219,8 @@ async function loginCustomer(data) {
       status: 200,
       message: "Login successful. Please check your email for OTP.",
       customer_id: customerId,
+      staff_id: "",
+      is_staff: false,
       otp: otp
     };
   } catch (error) {
@@ -533,6 +539,116 @@ async function resendOTP(data) {
     };
   }
 }
+async function staffLogin(data) {
+  try {
+    if (!data.email || !data.password) {
+      return { status: 400, message: "Missing email or password" };
+    }
+
+    const customerDoc = await db
+      .collection("users")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      if (customerDoc.empty) {
+        return { status: 400, message: "Invalid email or password" };
+      }
+
+    }
+
+    const customerData = customerDoc.docs[0].data();
+    const staff_id = customerDoc.docs[0].id;
+    const customerId = customerData.customer_id;
+    const isValidPassword = verifyPassword(
+      data.password,
+      customerData.salt,
+      customerData.password
+    );
+
+    if (!isValidPassword) {
+      return { status: 400, message: "Invalid email or password" };
+    }
+
+    const otp = generateOTP();
+
+    await db
+      .collection("users")
+      .doc(staff_id)
+      .update({
+        otp: otp,
+        otpExpiry: Date.now() + 5 * 60 * 1000, // 5 minutes
+      });
+    let subject = "Your OTP for Login";
+    let body = `<p>Your OTP for Login is: <strong>${otp}</strong></p>
+               <p>This OTP will expire in 10 minutes.</p>`;
+    await sendOTPEmail(data.email, otp, subject, body);
+
+    return {
+      status: 200,
+      message: "Login successful. Please check your email for OTP.",
+      customer_id: customerId,      
+      staff_id: staff_id,
+      is_staff: true,
+      otp: otp
+    };
+  } catch (error) {
+    console.error("Error in loginCustomer:", error);
+    return { status: 500, message: "Error during login", error: error.message };
+  }
+}
+async function staffVerifyOTP(data) {
+  try {
+    if (!data.staff_id || !data.otp) {
+      return { status: 400, message: "Missing ID or OTP" };
+    }
+
+    const customerDoc = await db
+      .collection("users")
+      .doc(data.staff_id)
+      .get();
+
+    if (!customerDoc.exists) {
+      return { status: 400, message: "Invalid OTP or ID" };
+    }
+
+    const { otp, otpExpiry, email } = customerDoc.data();
+
+    // Check if the OTP has expired
+    const currentTime = Date.now();
+    if (currentTime > otpExpiry) {
+      return { status: 400, message: "OTP has expired" };
+    }
+
+    if (otp === data.otp) {
+      // generate JWT token
+      const token = generateToken(data.staff_id, email);
+
+      // Delete the used OTP
+      await db.collection("users").doc(data.staff_id).update({
+        isVerified: true,
+        otp: admin.firestore.FieldValue.delete(),
+        otpExpiry: admin.firestore.FieldValue.delete(),
+      });
+
+      return {
+        status: 200,
+        message: "OTP verified successfully",
+        token: token,
+      };
+    } else {
+      return { status: 400, message: "Invalid OTP" };
+    }
+  } catch (error) {
+    console.error("Error in staffVerifyOTP:", error);
+    return {
+      status: 500,
+      message: "Error verifying OTP",
+      error: error.message,
+    };
+  }
+}
 
 module.exports = {
   registerCustomer,
@@ -544,5 +660,6 @@ module.exports = {
   resetPassword,
   verifyLoginOTP,
   resendOTP,
-  resendLoginOTP
+  resendLoginOTP,
+  staffVerifyOTP
 };

@@ -573,10 +573,17 @@ async function getBanners() {
   try {
     let data = {};
     const document = await db.collection("banners").get();
-    const documentdata = document.docs.reduce((acc, doc) => {
-      acc[doc.id] = { ...doc.data() };
-      return acc;
-    }, {});
+
+    const documentdata = document.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+
+    // const documentdata = document.docs.reduce((acc, doc) => {
+    //   acc[doc.id] = { ...doc.data() };
+    //   return acc;
+    // }, {});
 
 
     return {

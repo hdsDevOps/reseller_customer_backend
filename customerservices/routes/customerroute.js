@@ -124,6 +124,36 @@ router.post('/otpverify', async (req, res) => {
   const result = await customerService.verifyOTP(req.body);
   res.status(result.status).json(result);
 });
+/**
+ * @swagger
+ * /customer/api/v1/staff_verifyOTP:
+ *   post:
+ *     summary: staff Verify OTP for login
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - staff_id
+ *               - otp
+ *             properties:
+ *               staff_id:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: staff OTP verified successfully
+ *       400:
+ *         description: Invalid OTP
+ */
+router.post('/staff_verifyOTP', async (req, res) => {
+  const result = await customerService.staffVerifyOTP(req.body);
+  res.status(result.status).json(result);
+});
 
 // /**
 //  * @swagger

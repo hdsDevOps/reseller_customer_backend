@@ -1,5 +1,6 @@
 const { admin, db } = require("../firebaseConfig");
-const { sendmail } = require("../helper");
+const { sendmail, hashPassword } = require("../helper");
+
 
 async function submitContactForm(data) {
   try {
@@ -195,6 +196,8 @@ async function addStaff(data) {
       return { status: 400, message: "Email already exists" };
     }
 
+    const emailphase = data.email.split('@')[0];
+    const { salt, hash } = hashPassword(`${emailphase}@123`);
     // Create new staff document
     const newStaff = {
       customer_id: data.user_id,
@@ -203,6 +206,8 @@ async function addStaff(data) {
       email: data.email,
       phone_no: data.phone_no,
       user_type_id: data.user_type_id,
+      password: hash,
+      salt: salt,
       is_staff: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -216,9 +221,10 @@ async function addStaff(data) {
       body: `
         <h2>Welcome ${data.first_name} ${data.last_name}!</h2>
         <p>Your account has been created successfully.</p>
-        <p>Please contact your administrator for login credentials.</p>
+        <p style="line-height:1.2;"><strong>login credentials:</strong> <br><strong>User Name:</strong> ${data.email}<br><strong>Password:</strong>${emailphase}@123</p>
       `,
     };
+
 
     await sendmail(emailData);
 

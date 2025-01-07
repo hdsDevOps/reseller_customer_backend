@@ -228,7 +228,7 @@ const changeAutoRenewalStatus = async (data) => {
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
     const subscription = subscriptionDoc.data();
-    await subscriptionRef.update({ ...subscription, ...workspace });
+    await subscriptionRef.update({ ...subscription, subscription_status:workspace });
 
     if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
 
