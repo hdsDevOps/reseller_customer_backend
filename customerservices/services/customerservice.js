@@ -6,6 +6,7 @@ const {
   hashPassword,
   verifyPassword,
   generateToken,
+  sendmail
 } = require("../helper");
 
 async function registerCustomer(data) {
@@ -20,11 +21,49 @@ async function registerCustomer(data) {
       .auth()
       .getUserByEmail(data.email)
       .catch(() => null);
+
     if (existingUser) {
-      return { status: 400, message: "Email already in use" };
+      data.customer_id = existingUser.uid;
+      const customerDoc = await db
+        .collection("customers")
+        .where("email", "==", data.email).limit(1)
+        .get();
+      if (!customerDoc.empty) {
+        const doc = customerDoc.docs[0];
+        const { isVerified } = doc.data();
+
+        if (isVerified == true) {
+          return { status: 400, message: "Email already in use" };
+        } else {
+          return await newCustomerOnlyRegistration(data);
+        }
+
+      } else {
+        return await newCustomerOnlyRegistration(data);
+      }
+
+
+
+
+    } else {
+      return await newCustomerRegistration(data);
     }
+  } catch (error) {
+    console.error("Error in registerCustomer:", error);
+    return {
+      status: 500,
+      message: "Error registering customer",
+      error: error.message,
+    };
+  }
+}
+
+async function newCustomerRegistration(data) {
+  try {
+
     if (data.password.length < 6) {
-      data.password = "123456";
+      let password = data.email.split('@')[0];
+      data.password = password + '@123';
 
     }
     const { salt, hash } = hashPassword(data.password);
@@ -36,7 +75,6 @@ async function registerCustomer(data) {
       password: data.password,
       disabled: false,
     });
-
     // Store customer data in Firestore
     await db.collection("customers").doc(userRecord.uid).set({
       first_name: data.first_name,
@@ -54,6 +92,7 @@ async function registerCustomer(data) {
       isVerified: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
     await db
       .collection("customers")
       .doc(userRecord.uid)
@@ -78,6 +117,68 @@ async function registerCustomer(data) {
       error: error.message,
     };
   }
+
+}
+async function newCustomerOnlyRegistration(data) {
+  try {
+
+    if (data.password.length < 6) {
+      let password = data.email.split('@')[0];
+      data.password = password + '@123';
+
+    }
+    const { salt, hash } = hashPassword(data.password);
+
+    const otp = generateOTP();
+
+    // const userRecord = await admin.auth().createUser({
+    //   email: data.email,
+    //   password: data.password,
+    //   disabled: false,
+    // });
+    // Store customer data in Firestore
+    await db.collection("customers").doc(data.customer_id).set({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      business_name: data.business_name,
+      state: data.state,
+      city: data.city,
+      zipcode: data.zipcode,
+      street_name: data.street_name,
+      region: data.region,
+      business_phone_number: data.business_phone_number,
+      salt: salt,
+      passwordHash: hash,
+      email: data.email,
+      isVerified: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await db
+      .collection("customers")
+      .doc(data.customer_id)
+      .update({
+        otp: otp,
+        otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+      });
+    // Send OTP email
+    await sendOTPEmail(data.email, otp);
+    return {
+      status: 200,
+      message:
+        "Customer registered successfully. Please check your email for OTP.",
+      userId: data.customer_id,
+      otp: otp,
+    };
+  } catch (error) {
+    console.error("Error in registerCustomer:", error);
+    return {
+      status: 500,
+      message: "Error registering customer",
+      error: error.message,
+    };
+  }
+
 }
 
 
@@ -244,7 +345,7 @@ async function verifyOTP(data) {
       return { status: 400, message: "Invalid OTP or customer ID" };
     }
 
-    const { otp, otpExpiry, email } = customerDoc.data();
+    const { otp, otpExpiry, email, isVerified, first_name, last_name } = customerDoc.data();
 
     // Check if the OTP has expired
     const currentTime = Date.now();
@@ -253,6 +354,22 @@ async function verifyOTP(data) {
     }
 
     if (otp === data.otp) {
+      let message = "";
+      if (isVerified == false) {
+        let pass = email.split('@')[0] + '@123';
+        const emailData = {
+          email: email,
+          subject: "Welcome to Our Platform",
+          body: `
+            <h2>Welcome ${first_name} ${last_name}!</h2>
+            <p>Your account has been created successfully.</p>
+            <p style="line-height:1.2;"><strong>login credentials:</strong> <br><strong>User Name:</strong> ${email}<br><strong>Password:</strong>${pass}</p>
+          `,
+        };
+
+        await sendmail(emailData);
+        message = "A mail has been send to your email account.";
+      }
       // generate JWT token
       const token = generateToken(data.customer_id, email);
 
@@ -265,7 +382,7 @@ async function verifyOTP(data) {
 
       return {
         status: 200,
-        message: "OTP verified successfully",
+        message: `OTP verified successfully ${message}`,
         token: token,
       };
     } else {
@@ -588,7 +705,7 @@ async function staffLogin(data) {
     return {
       status: 200,
       message: "Login successful. Please check your email for OTP.",
-      customer_id: customerId,      
+      customer_id: customerId,
       staff_id: staff_id,
       is_staff: true,
       otp: otp
