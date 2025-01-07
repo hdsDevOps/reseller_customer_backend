@@ -386,10 +386,14 @@ async function uploadimage(req, res) {
 
       // Get the public URL
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-      const customerRef = db.collection("customers").doc(req.body.user_id);
-      await customerRef.update({ profile_image: publicUrl });
-
+      
+      if (req.body.is_staff == "true") {      
+        const customerRef = db.collection("users").doc(req.body.staff_id);
+        await customerRef.update({ profile_image: publicUrl });
+      } else {
+        const customerRef = db.collection("customers").doc(req.body.user_id);
+        await customerRef.update({ profile_image: publicUrl });
+      }
 
       res.status(200).send({ message: 'File uploaded successfully!', url: publicUrl });
     });
@@ -411,6 +415,22 @@ async function getCustomerProfileData(data) {
 
     const customerDoc = await db.collection("customers").doc(data.user_id).get();
     const customerData = customerDoc.data();
+
+
+    if (data.hasOwnProperty('is_staff') && data.is_staff == true) {
+      const staffDoc = await db.collection("users").doc(data.staff_id).get();
+      const staffData = staffDoc.data();
+      customerData.first_name = staffData.first_name;
+      customerData.last_name = staffData.last_name;
+      customerData.email = staffData.email;
+      customerData.phone_no = staffData.phone_no;
+      customerData.address = staffData.address;
+      customerData.city = staffData.city;
+      customerData.country = staffData.country;
+      customerData.state = staffData.state;
+      customerData.profile_image = staffData.profile_image ? staffData.profile_image : "";
+    }
+
 
     return { status: 200, message: "customer profile data fetched successfully", customerData };
   } catch (error) {
