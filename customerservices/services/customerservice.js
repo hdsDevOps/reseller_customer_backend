@@ -6,7 +6,7 @@ const {
   hashPassword,
   verifyPassword,
   generateToken,
-  sendmail
+  sendmail, generateAlphanumericCode
 } = require("../helper");
 
 async function registerCustomer(data) {
@@ -80,6 +80,7 @@ async function newCustomerRegistration(data) {
       first_name: data.first_name,
       last_name: data.last_name,
       business_name: data.business_name,
+      profile_id: "HDS-" + generateAlphanumericCode(6),
       state: data.state,
       city: data.city,
       zipcode: data.zipcode,
@@ -142,6 +143,7 @@ async function newCustomerOnlyRegistration(data) {
       first_name: data.first_name,
       last_name: data.last_name,
       business_name: data.business_name,
+      profile_id: "HDS-" + generateAlphanumericCode(6),
       state: data.state,
       city: data.city,
       zipcode: data.zipcode,
@@ -710,7 +712,7 @@ async function staffLogin(data) {
 
     const custSnap = await db.collection("customers").doc(customerId).get();
     const custdata = custSnap.data();
-    
+
 
     if (custdata.authentication == true) {
       const token = generateToken(customerId, customerData.email);
