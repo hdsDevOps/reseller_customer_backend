@@ -90,6 +90,7 @@ async function newCustomerRegistration(data) {
       passwordHash: hash,
       email: data.email,
       isVerified: false,
+      authentication: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -151,6 +152,7 @@ async function newCustomerOnlyRegistration(data) {
       passwordHash: hash,
       email: data.email,
       isVerified: false,
+      authentication: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -300,6 +302,24 @@ async function loginCustomer(data) {
       return await staffLogin(data);
       // return { status: 400, message: "Invalid email or password" };
     }
+
+    if (customerData.authentication == true) {
+      const token = generateToken(customerId, customerData.email);
+
+      // Delete the used OTP
+      await db.collection("customers").doc(customerId).update({
+        isVerified: true,
+        otp: admin.firestore.FieldValue.delete(),
+        otpExpiry: admin.firestore.FieldValue.delete(),
+      });
+
+      return {
+        status: 200,
+        message: `Login successful`,
+        token: token,
+      };
+    }
+
 
     const otp = generateOTP();
     console.log(otp);
@@ -687,6 +707,29 @@ async function staffLogin(data) {
     if (!isValidPassword) {
       return { status: 400, message: "Invalid email or password" };
     }
+
+    const custSnap = await db.collection("customers").doc(customerId).get();
+    const custdata = custSnap.data();
+    
+
+    if (custdata.authentication == true) {
+      const token = generateToken(customerId, customerData.email);
+
+      // Delete the used OTP
+      await db.collection("users").doc(staff_id).update({
+        isVerified: true,
+        otp: admin.firestore.FieldValue.delete(),
+        otpExpiry: admin.firestore.FieldValue.delete(),
+      });
+
+      return {
+        status: 200,
+        message: `Login successful`,
+        token: token,
+      };
+    }
+
+
 
     const otp = generateOTP();
 
