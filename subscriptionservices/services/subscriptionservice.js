@@ -104,14 +104,15 @@ const addCustomerSubscription = async (data) => {
       }
     }
 
-
-    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
-      const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
+    const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
+    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {      
       if (data.hasOwnProperty('license_usage') && (data.license_usage != "" || data.license_usage != null)) {
         await workspaceRef.update({ workspace: subs, ...trial, 'license_usage': data.license_usage });
       } else {
         await workspaceRef.update({ workspace: subs, ...trial });
       }
+    }else{
+      await workspaceRef.update({ domain_details: subs });
     }
 
     return { status: 200, message: "Customer subscription added successfully" };
