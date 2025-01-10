@@ -26,9 +26,13 @@ async function submitContactForm(data) {
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    const contactSnap = await db.collection("cms").doc("contact_us").get();
+    const contactData = [{ ...contactSnap.data() }];
+
+
     // Send email with contact form data
-    const emailData = {
-      email: process.env.ADMIN_EMAIL, // Send to admin email
+    const emailData = {      
+      email: contactData.email, // Send to admin email
       subject: `New Contact Form Submission: ${data.subject}`,
       body: `
         <h2>New Contact Form Submission</h2>
@@ -572,7 +576,7 @@ async function gethomedata() {
 async function getBanners() {
   try {
     let data = {};
-    const document = await db.collection("banners").get();
+    const document = await db.collection("banners").where("active","==",true).get();
 
     const documentdata = document.docs.map((doc) => ({
       id: doc.id,

@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 
-const generateToken = (customer_id, email, expiresIn = "1h") => {
+const generateToken = (customer_id, email, expiresIn = "24h") => {
   const secretKey = process.env.CRYPTOTOKEN;
 
   if (!secretKey) {
