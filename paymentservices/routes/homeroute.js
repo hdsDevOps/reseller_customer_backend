@@ -360,7 +360,7 @@ router.post('/delete_staff',  verifyToken, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/getpaymentmethod',verifyToken, async (req, res) => {
+router.get('/getpaymentmethod', async (req, res) => {
   try {
     const result = await homeService.getPaymentMethods();
     res.status(result.status).json(result);
