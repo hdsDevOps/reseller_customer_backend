@@ -319,6 +319,9 @@ async function loginCustomer(data) {
         status: 200,
         message: `Login successful`,
         token: token,
+        customer_id: customerId,
+        staff_id: "",
+        is_staff: false,
       };
     }
 
@@ -728,6 +731,9 @@ async function staffLogin(data) {
         status: 200,
         message: `Login successful`,
         token: token,
+        customer_id: customerId,
+        staff_id: staff_id,
+        is_staff: true       
       };
     }
 
