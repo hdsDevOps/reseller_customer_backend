@@ -31,7 +31,7 @@ async function submitContactForm(data) {
 
 
     // Send email with contact form data
-    const emailData = {      
+    const emailData = {
       email: contactData.email, // Send to admin email
       subject: `New Contact Form Submission: ${data.subject}`,
       body: `
@@ -576,7 +576,7 @@ async function gethomedata() {
 async function getBanners() {
   try {
     let data = {};
-    const document = await db.collection("banners").where("active","==",true).get();
+    const document = await db.collection("banners").where("active", "==", true).get();
 
     const documentdata = document.docs.map((doc) => ({
       id: doc.id,
@@ -604,6 +604,47 @@ async function getBanners() {
     };
   }
 }
+async function getPromotionList(data) {
+  // try {
+    const today = new Date();
+    let snapref = db.collection("promotions");
+    const snapData = await snapref.where('end_date', '>', today).get();
+    if (!snapData.empty) {
+      let batch = db.batch();
+      snapData.forEach(doc => {
+        const docRef = snapref.doc(doc.id);
+        batch.update(docRef, { status: false });
+      });
+      await batch.commit();
+    }
+
+    snapref = db.collection("promotions").where("status", "==", true);
+    if (data.hasOwnProperty("promotion_id") && data.promotion_id != "" && data.promotion_id != null) {
+      const specificDocRef = db.collection("promotions").doc(data.promotion_id);
+      const doc = await specificDocRef.get();
+      if (!doc.exists) {
+        throw new Error("Promotion not found");
+      }
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
+    }
+    const snapshot = await snapref.get();
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+  // } catch (error) {
+  //   console.error("Error in getPromotionList:", error);
+  //   return {
+  //     status: 500,
+  //     message: "Error retrieving data",
+  //     error: error.message,
+  //   };
+  // }
+}
 module.exports = {
   submitContactForm,
   getSettings,
@@ -621,7 +662,8 @@ module.exports = {
   getfaqs,
   gethomedata,
   getBanners,
-  addBillingData
+  addBillingData,
+  getPromotionList
 };
 
 

@@ -718,6 +718,46 @@ router.get('/get_banners', async (req, res) => {
     res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
   }
 });
+/**
+ * @swagger
+ * /home/api/v1/get_promotion_list:
+ *   post:
+ *     summary: Get avilable promotion list
+ *     tags: [Home]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             optional:
+ *               - promotion_id
+ *             properties:
+ *               promotion_id:
+ *                 type: string                 
+ *     responses:
+ *       200:
+ *         description: promotion data retrieved successfully
+ *         content:
+ *           application/csv:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Error in getPromotionList
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/get_promotion_list', async (req, res) => {
+  try {
+    const result = await homeService.getPromotionList(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
+  }
+});
 
 
 module.exports = router;
