@@ -605,7 +605,7 @@ async function getBanners() {
   }
 }
 async function getPromotionList(data) {
-  // try {
+  try {
     const today = new Date();
     let snapref = db.collection("promotions");
     const snapData = await snapref.where('end_date', '<', today).get();
@@ -636,14 +636,14 @@ async function getPromotionList(data) {
       ...doc.data(),
     }));
 
-  // } catch (error) {
-  //   console.error("Error in getPromotionList:", error);
-  //   return {
-  //     status: 500,
-  //     message: "Error retrieving data",
-  //     error: error.message,
-  //   };
-  // }
+  } catch (error) {
+    console.error("Error in getPromotionList:", error);
+    return {
+      status: 500,
+      message: "Error retrieving data",
+      error: error.message,
+    };
+  }
 }
 module.exports = {
   submitContactForm,
