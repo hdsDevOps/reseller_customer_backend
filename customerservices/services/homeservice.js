@@ -608,7 +608,7 @@ async function getPromotionList(data) {
   // try {
     const today = new Date();
     let snapref = db.collection("promotions");
-    const snapData = await snapref.where('end_date', '>', today).get();
+    const snapData = await snapref.where('end_date', '<', today).get();
     if (!snapData.empty) {
       let batch = db.batch();
       snapData.forEach(doc => {
