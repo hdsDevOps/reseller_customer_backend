@@ -143,5 +143,40 @@ router.post('/customer_voucher_list', verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /setting/api/v1/use_voucher:
+ *   post:
+ *     summary: voucher used
+ *     tags: [Setting]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - record_id
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: voucher record updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: voucher record not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/use_voucher',  verifyToken, async (req, res) => {
+  try {
+    const result = await settingService.useVoucher(req.body);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: "Error editing staff", error: error.message });
+  }
+});
 
 module.exports = router;

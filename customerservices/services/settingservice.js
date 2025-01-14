@@ -29,7 +29,33 @@ async function getCustomerVoucherList(data) {
     return { status: 500, message: "Error fetching vouchers", error: error.message };
   }
 }
+async function useVoucher(data) {
+  try {
+    if (!data.record_id) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+     const updateValue={
+      used_date:new Date(),
+      status:"used"
+     }
+    const subscriptionRef = db.collection("customer_vouchers").doc(data.record_id);
+    await subscriptionRef.update({ ...updateValue });
+
+    
+    return { status: 200, message: "voucher record updated successfully" };
+
+  } catch (error) {
+    console.error("Error in useVoucher:", error);
+    return {
+      status: 500,
+      message: "Error updating customer voucher",
+      error: error.message
+    };
+  }
+}
 module.exports = {
   getVoucherList,
-  getCustomerVoucherList
+  getCustomerVoucherList,
+  useVoucher
 };
