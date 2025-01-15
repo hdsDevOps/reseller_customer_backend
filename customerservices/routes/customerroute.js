@@ -359,5 +359,28 @@ router.post('/resend_otp', async (req, res) => {
   res.status(result.status).json(result);
 });
 
+/**
+ * @swagger
+ * /customer/api/v1/verify_recaptcha:
+ *   post:
+ *     summary: verify recaptcha
+ *     tags: [Customer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: reCAPTCHA verified
+ *       400:
+ *         description: Invalid request
+ */
+router.post('/verify_recaptcha', async (req, res) => {
+  const result = await customerService.verifyRecaptcha(req.body);
+  res.json(result);
+});
+
 
 module.exports = router;

@@ -733,7 +733,7 @@ async function staffLogin(data) {
         token: token,
         customer_id: customerId,
         staff_id: staff_id,
-        is_staff: true       
+        is_staff: true
       };
     }
 
@@ -817,6 +817,27 @@ async function staffVerifyOTP(data) {
     };
   }
 }
+async function verifyRecaptcha(req) {
+  const fetch = require('node-fetch');
+  const { re_captcha_token } = req;
+  const secretKey = process.env.GOOGLE_RECAPTCHA_SECRET;
+
+  const response = await fetch(`https://www.google.com/recaptcha/api/siteverify`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      },
+      body: `secret=${secretKey}&response=${re_captcha_token}`,
+    });
+  const data = await response.json();
+
+  if (data.success) {
+    return { success: true, message: 'reCAPTCHA verified' };
+  } else {
+    return { success: false, message: 'reCAPTCHA failed' };
+  }
+}
 
 module.exports = {
   registerCustomer,
@@ -829,5 +850,6 @@ module.exports = {
   verifyLoginOTP,
   resendOTP,
   resendLoginOTP,
-  staffVerifyOTP
+  staffVerifyOTP,
+  verifyRecaptcha
 };
