@@ -91,7 +91,7 @@ async function newCustomerRegistration(data) {
       passwordHash: hash,
       email: data.email,
       isVerified: false,
-      authentication: false,
+      authentication: true,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -155,7 +155,7 @@ async function newCustomerOnlyRegistration(data) {
       passwordHash: hash,
       email: data.email,
       isVerified: false,
-      authentication: false,
+      authentication: true,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -308,7 +308,7 @@ async function loginCustomer(data) {
       // return { status: 400, message: "Invalid email or password" };
     }
 
-    if (customerData.authentication == true) {
+    if (customerData.authentication == false) {
       const token = generateToken(customerId, customerData.email);
 
       // Delete the used OTP
@@ -720,7 +720,7 @@ async function staffLogin(data) {
     const custdata = custSnap.data();
 
 
-    if (custdata.authentication == true) {
+    if (custdata.authentication == false) {
       const token = generateToken(customerId, customerData.email);
 
       // Delete the used OTP
