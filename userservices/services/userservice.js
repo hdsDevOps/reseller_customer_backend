@@ -234,6 +234,8 @@ async function updateProfile(data) {
     }
     const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.phone_no]
+
     };
 
     const fields = [

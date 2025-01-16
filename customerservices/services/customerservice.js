@@ -101,6 +101,7 @@ async function newCustomerRegistration(data) {
       .update({
         otp: otp,
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number]
       });
     // Send OTP email
     await sendOTPEmail(data.email, otp);
@@ -164,6 +165,8 @@ async function newCustomerOnlyRegistration(data) {
       .update({
         otp: otp,
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number]
+
       });
     // Send OTP email
     await sendOTPEmail(data.email, otp);

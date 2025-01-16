@@ -1,0 +1,1 @@
+const { admin, db } = require("../firebaseConfig");

@@ -165,6 +165,7 @@ async function updateProfile(data) {
 
     const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
+
     };
 
     const fields = [
