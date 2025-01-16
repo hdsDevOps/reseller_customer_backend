@@ -34,6 +34,7 @@ async function adddomain(data) {
       subscription_status:data.subscription_status,
       is_deleted: false,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
+      searchableIndex:[data.domin_name.toLowerCase()]
     };
 
 

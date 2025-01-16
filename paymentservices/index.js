@@ -9,6 +9,7 @@ require("dotenv").config();
 // Import routes
    
 const homeRoute = require('./routes/homeroute');
+const paymentroute = require('./routes/payment');
 
 require('dotenv').config();
   
@@ -35,6 +36,7 @@ app.get("/paymentservices/test", (req, res) => {
 });
 
 app.use('/paymentservices/payment/api/v1', homeRoute);
+app.use('/paymentservices/payments/api/v1', paymentroute);
 
 // Swagger UI
 app.use("/paymentservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
