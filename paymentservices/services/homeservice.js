@@ -346,7 +346,7 @@ async function deleteStaff(data) {
 
 async function getPaymentMethods() {
   try {
-    const paymentMethodsSnapshot = await db.collection("payment_methods").get();
+    const paymentMethodsSnapshot = await db.collection("payment_methods").where("status", "==", "ACTIVE").get();
     const paymentMethods = paymentMethodsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
