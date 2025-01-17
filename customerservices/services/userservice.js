@@ -2,6 +2,7 @@ const { messaging } = require("firebase-admin");
 const { admin, db } = require("../firebaseConfig");
 const { hashPassword } = require("../helper");
 const { v4: uuidv4 } = require('uuid');
+const fetch = require('node-fetch');
 
 
 
@@ -399,6 +400,27 @@ async function makeDefaultCard(data) {
   }
 
 }
+async function getAddress(data) {
+
+  try {
+    if (!data.address) {
+      return { status: 400, message: "Missing required fields" };
+    }
+
+    const response = await fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${data.address}&apiKey=${process.env.HERE_API_SECRET}`); 
+    const result = await response.json(); 
+
+    return { status: 200, message: "Address fetch successfully", data:result};
+  } catch (error) {
+    console.error("Error in getAddress:", error);
+    return {
+      status: 500,
+      message: "Error fatch address",
+      error: error.message,
+    };
+  }
+
+}
 
 module.exports = {
   addEmail,
@@ -412,6 +434,7 @@ module.exports = {
   updateCards,
   getCustomerCards,
   deleteCard,
-  makeDefaultCard
+  makeDefaultCard,
+  getAddress
 
 };

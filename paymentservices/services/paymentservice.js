@@ -7,7 +7,8 @@ const https = require('https')
 
 
 async function makeStripePayment(data) {
-  const { product, token } = data; const idempotencyKey = uuidv4();
+  const { product, token } = data; 
+  const idempotencyKey = uuidv4();
   try {
     // Create a new customer 
     const customer = await stripe.customers.create({ email: token.email, source: token.id });
@@ -39,11 +40,11 @@ async function makeStripePayment(data) {
 //   }
 // }
 async function makePaystackPayment(data) {
-  // const { email, amount } = data;
+  const { email, amount } = data;
   try {
     const params = JSON.stringify({
-      "email": "customer@email.com",
-      "amount": "500000"
+      "email": email,
+      "amount": amount*100
     })
     const options = {
       hostname: 'api.paystack.co',

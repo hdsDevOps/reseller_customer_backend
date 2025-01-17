@@ -489,4 +489,10 @@ router.post("/make_default_card", verifyToken, async (req, res) => {
   const result = await userService.makeDefaultCard(req.body);
   res.status(result.status).json(result);
 });
+
+router.post("/get_address",async (req,res)=>{
+  const result = await userService.getAddress(req.body);
+  res.status(result.status).json(result);
+});
+
 module.exports = router;
