@@ -32,22 +32,23 @@ async function makeStripePayment(data) {
       }
     }
 
-    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null) {
-      if (product.workspace.trial_plan !== "yes") {
-        const subscription_details = await subscriptionDetails(product.workspace.plan.id)
+    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null) {     
+      if (product.workspace.trial_plan !== "yes") {        
+        const subscription_details = await subscriptionDetails(product.workspace.plan.id)        
         let subs_amount = subscription_details.subsccription.amount_details;
         if (subs_amount != "") {
           for (const subAmount of subs_amount)
             if (subAmount.currency_code == product.currency) {
               for (const subPrice of subAmount.price)
                 if (subPrice.type == product.workspace.plan_period) {
-                  workspace_amount = subPrice.price * product.workspace.license_usage
+                  workspace_amount = subPrice.discount_price * product.workspace.license_usage
                 }
             }
 
         }
       }
     }
+
     if (product.hasOwnProperty('voucher_id') && product.voucher_id != "" && product.voucher_id != null) {
       voucherData = await getVoucherDetails(product.voucher_id);
       if (new Date() >= voucherData.start_date && new Date() <= voucherData.end_date && is_deleted == 0) {
@@ -65,12 +66,12 @@ async function makeStripePayment(data) {
       net_price = (workspace_amount + domain_amount);
       total_price = ((net_price) + (net_price * tax / 100)).toFixed(2);
     }
-
+  
     // Create a new customer 
     const customer = await stripe.customers.create({ email: token.email, source: token.id });
     // Create a charge 
     const charge = await stripe.charges.create({
-      amount: total_price * 100,    // Stripe expects the amount in cents 
+      amount: parseInt(total_price * 100),    // Stripe expects the amount in cents 
       currency: product.currency,
       customer: customer.id,
       receipt_email: token.email,
@@ -115,7 +116,7 @@ async function makePaystackPayment(data) {
             if (subAmount.currency_code == product.currency) {
               for (const subPrice of subAmount.price)
                 if (subPrice.type == product.workspace.plan_period) {
-                  workspace_amount = subPrice.price * product.workspace.license_usage
+                  workspace_amount = subPrice.discount_price * product.workspace.license_usage
                 }
             }
 
@@ -142,7 +143,7 @@ async function makePaystackPayment(data) {
 
     const params = JSON.stringify({
       "email": ownCustomer.email,     
-      "amount": total_price * 100    // Stripe expects the amount in cents 
+      "amount": parseInt(total_price * 100)    // Stripe expects the amount in cents 
     })
     const options = {
       hostname: 'api.paystack.co',
