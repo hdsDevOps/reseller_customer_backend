@@ -5,9 +5,10 @@ const { v4: uuidv4 } = require('uuid');
 const Paystack = require('paystack');
 const https = require('https')
 const axios = require('axios');
-const idempotencyKey = uuidv4();
+
 
 async function makeStripePayment(data) {
+  const idempotencyKey = uuidv4();
   const { product, token } = data; 
 
   try {
