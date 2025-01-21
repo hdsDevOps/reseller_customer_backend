@@ -452,8 +452,7 @@ async function requestPasswordReset(data) {
     let subject = "Your OTP for reset password";
     let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
              <p>This OTP will expire in 10 minutes.</p>`;
-    await sendOTPEmail(data.email, otp, subject, body);
-    console.log(otp);
+    await sendOTPEmail(data.email, otp, subject, body);    
     return { status: 200, message: "Password reset OTP sent to your email" };
   } catch (error) {
     console.error("Error in requestPasswordReset:", error);

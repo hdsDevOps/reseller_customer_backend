@@ -128,6 +128,7 @@ async function sendOTPEmail(email, otp, subject = "", body = "") {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP,
       port: 587,
+      secure: false,
       auth: {
         user: process.env.MAILUSER,
         pass: process.env.MAILPASS,

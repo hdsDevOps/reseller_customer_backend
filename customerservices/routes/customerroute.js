@@ -30,8 +30,7 @@ const customerService = require('../services/customerservice');
  *         description: Invalid credentials
  */
 router.post('/login', async (req, res) => {
-  const result = await customerService.loginCustomer(req.body);
-  console.log("object==============",result);
+  const result = await customerService.loginCustomer(req.body); 
   res.status(result.status).json(result);
 });
 
