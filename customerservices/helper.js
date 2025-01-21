@@ -74,6 +74,7 @@ async function sendmail(req, res, next) {
   var transporter = nodemailer.createTransport({
     host: process.env.SMTP,
     port: 587,
+    secure: false,
     auth: {
       user: process.env.MAILUSER,
       pass: process.env.MAILPASS,
