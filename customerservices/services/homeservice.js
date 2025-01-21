@@ -27,7 +27,7 @@ async function submitContactForm(data) {
     });
 
     const contactSnap = await db.collection("cms").doc("contact_us").get();
-    const contactData = [{ ...contactSnap.data() }];
+    const contactData = contactSnap.data();
 
 
     // Send email with contact form data
