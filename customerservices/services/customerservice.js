@@ -704,7 +704,9 @@ async function staffLogin(data) {
     }
 
     const customerData = customerDoc.docs[0].data();
+    
     const staff_id = customerDoc.docs[0].id;
+    const role_id = customerData.user_type_id;
     const customerId = customerData.customer_id;
     const isValidPassword = verifyPassword(
       data.password,
@@ -729,18 +731,19 @@ async function staffLogin(data) {
         otp: admin.firestore.FieldValue.delete(),
         otpExpiry: admin.firestore.FieldValue.delete(),
       });
-
+     
       return {
         status: 200,
-        message: `Login successful`,
+        message: `Login successful1111`,
         token: token,
         customer_id: customerId,
         staff_id: staff_id,
+        role_id: role_id,
         is_staff: true
       };
     }
 
-
+   
 
     const otp = generateOTP();
 
@@ -761,6 +764,7 @@ async function staffLogin(data) {
       message: "Login successful. Please check your email for OTP.",
       customer_id: customerId,
       staff_id: staff_id,
+      role_id: role_id,
       is_staff: true,
       otp: otp
     };

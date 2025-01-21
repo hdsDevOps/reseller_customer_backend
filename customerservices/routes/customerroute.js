@@ -31,6 +31,7 @@ const customerService = require('../services/customerservice');
  */
 router.post('/login', async (req, res) => {
   const result = await customerService.loginCustomer(req.body);
+  console.log("object==============",result);
   res.status(result.status).json(result);
 });
 
