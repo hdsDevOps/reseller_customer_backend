@@ -414,6 +414,7 @@ async function addBillingData(data) {
     // Create new staff document
     const newBill = {
       user_id: data.user_id,
+      subscription_id: data.subscription_id,
       date: new Date(data.date),
       transaction_id: data.transaction_id,
       invoice: data.invoice,
