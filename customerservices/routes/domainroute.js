@@ -251,5 +251,12 @@ router.post("/update_license_usage", verifyToken, async (req, res) => {
   res.status(result.status).json(result);
 });
 
-
+router.get("/get_usnc", async (req, res) => {
+  const result = await domainService.getUSNC(req.body);
+  res.status(result.status).json(result);
+});
+router.get("/get_usap", async (req, res) => {
+  const result = await domainService.getUSAP(req.body);
+  res.status(result.status).json(result);
+});
 module.exports = router;

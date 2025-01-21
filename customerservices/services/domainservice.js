@@ -2,23 +2,23 @@ const { admin, db } = require("../firebaseConfig");
 const { sendmail } = require("../helper");
 
 async function adddomain(data) {
-  try {    
+  try {
     if (
       !data.customer_id ||
       !data.domain_name ||
       !data.domain_type ||
-      !data.subscription_id||
-      !data.business_email||      
-      !data.plan||
-      !data.payment_method||
-      !data.domain_status||
-      !data.billing_period||
-      !data.renew_status||
+      !data.subscription_id ||
+      !data.business_email ||
+      !data.plan ||
+      !data.payment_method ||
+      !data.domain_status ||
+      !data.billing_period ||
+      !data.renew_status ||
       !data.subscription_status
     ) {
       return { status: 400, message: "Missing required fields" };
     }
-   
+
     const newDomain = {
       customer_id: data.customer_id,
       domain_name: data.domain_name,
@@ -29,12 +29,12 @@ async function adddomain(data) {
       plan: data.plan,
       payment_method: data.payment_method,
       domain_status: data.domain_status,
-      billing_period:data.billing_period,
-      auto_renew_status:data.renew_status,
-      subscription_status:data.subscription_status,
+      billing_period: data.billing_period,
+      auto_renew_status: data.renew_status,
+      subscription_status: data.subscription_status,
       is_deleted: false,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-      searchableIndex:[data.domain_name.toLowerCase()]
+      searchableIndex: [data.domain_name.toLowerCase()]
     };
 
 
@@ -62,14 +62,14 @@ async function domainlist(data) {
       return { status: 400, message: "Missing required fields" };
     }
     let domain = [];
-    let domains_data = [];   
-       domain = await db.collection("domains").where("customer_id", "==", data.customer_id).where("is_deleted", "==", false).get();
-        
-      domains_data = domain.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-   
+    let domains_data = [];
+    domain = await db.collection("domains").where("customer_id", "==", data.customer_id).where("is_deleted", "==", false).get();
+
+    domains_data = domain.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
 
     return { status: 200, msg: "Domains fetched successfully", data: domains_data };
   } catch (error) {
@@ -175,7 +175,48 @@ async function updateLicenseUsage(data) {
     };
   }
 }
+async function getUSNC() {
+  try {
+    let usnc = [];
+    let usnc_data = [];
+    usnc = await db.collection("usnc").where("is_active", "==", "true").get();
 
+    usnc_data = usnc.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+
+    return { status: 200, msg: "USNC fetched successfully", data: usnc_data };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error fetched getUSNC",
+      error: error.message,
+    };
+  }
+}
+async function getUSAP() {
+  try {
+    let usap = [];
+    let usap_data = [];
+    usap = await db.collection("usap").where("is_active", "==", "true").get();
+
+    usap_data = usap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+
+    return { status: 200, msg: "USAP fetched successfully", data: usap_data };
+  } catch (error) {
+    return {
+      status: 500,
+      message: "Error fetched getUSAP",
+      error: error.message,
+    };
+  }
+}
 module.exports = {
   adddomain,
   domainlist,
@@ -183,5 +224,7 @@ module.exports = {
   changedomaintype,
   changerenewstatus,
   changesubscriptionstatus,
-  updateLicenseUsage
+  updateLicenseUsage,
+  getUSNC,
+  getUSAP
 }
