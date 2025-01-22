@@ -44,6 +44,7 @@ async function addEmail(data) {
       email.salt = salt;
       email.passwordHash = hash;
       email.uuid = email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
+      email.status = true;
     });
 
     const customerRef = db.collection("domains").doc(data.domain_id);
