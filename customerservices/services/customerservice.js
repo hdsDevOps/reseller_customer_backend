@@ -15,7 +15,12 @@ async function registerCustomer(data) {
     if (!data.email || !data.first_name || !data.last_name) {
       return { status: 400, message: "Missing required fields" };
     }
-
+    if (!data.hasOwnProperty('business_phone_number')) {
+      data.business_phone_number = '';
+    }
+    if (!data.hasOwnProperty('phone_no')) {
+      data.phone_no = '';
+    }
     // Check if email already exists
     const existingUser = await admin
       .auth()
@@ -86,6 +91,7 @@ async function newCustomerRegistration(data) {
       zipcode: data.zipcode,
       street_name: data.street_name,
       region: data.region,
+      phone_no: data.phone_no,
       business_phone_number: data.business_phone_number,
       salt: salt,
       passwordHash: hash,
@@ -150,6 +156,7 @@ async function newCustomerOnlyRegistration(data) {
       zipcode: data.zipcode,
       street_name: data.street_name,
       region: data.region,
+      phone_no: data.phone_no,
       business_phone_number: data.business_phone_number,
       salt: salt,
       passwordHash: hash,
@@ -165,7 +172,7 @@ async function newCustomerOnlyRegistration(data) {
       .update({
         otp: otp,
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
-        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number]
+        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number,data.phone_no]
 
       });
     // Send OTP email
@@ -452,7 +459,7 @@ async function requestPasswordReset(data) {
     let subject = "Your OTP for reset password";
     let body = `<p>Your OTP for reset password is: <strong>${otp}</strong></p>
              <p>This OTP will expire in 10 minutes.</p>`;
-    await sendOTPEmail(data.email, otp, subject, body);    
+    await sendOTPEmail(data.email, otp, subject, body);
     return { status: 200, message: "Password reset OTP sent to your email" };
   } catch (error) {
     console.error("Error in requestPasswordReset:", error);
@@ -703,7 +710,7 @@ async function staffLogin(data) {
     }
 
     const customerData = customerDoc.docs[0].data();
-    
+
     const staff_id = customerDoc.docs[0].id;
     const role_id = customerData.user_type_id;
     const customerId = customerData.customer_id;
@@ -730,7 +737,7 @@ async function staffLogin(data) {
         otp: admin.firestore.FieldValue.delete(),
         otpExpiry: admin.firestore.FieldValue.delete(),
       });
-     
+
       return {
         status: 200,
         message: `Login successful1111`,
@@ -742,7 +749,7 @@ async function staffLogin(data) {
       };
     }
 
-   
+
 
     const otp = generateOTP();
 

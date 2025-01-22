@@ -42,11 +42,22 @@ async function adddomain(data) {
       .firestore()
       .collection("domains")
       .add(newDomain);
-    return {
-      status: 200,
-      message: "Domain added successfully",
-      domain_id: docRef.id,
-    };
+    if (docRef.id) {
+      const custRef = db.collection("customers").doc(data.customer_id);
+      const custData = await custRef.get();
+      if (custData.domain == "" && custData.domain == null && custData.domain == undefined) {
+        await custRef.update({
+          domain: data.domain_name
+        });
+
+      }
+
+      return {
+        status: 200,
+        message: "Domain added successfully",
+        domain_id: docRef.id,
+      };
+    }
   } catch (error) {
     return {
       status: 500,

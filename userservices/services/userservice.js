@@ -232,9 +232,12 @@ async function updateProfile(data) {
     if (data.hasOwnProperty("is_staff") && data.is_staff == true) {
       return await updateStaffProfile(data);
     }
+    const custRef = db.collection("customers").doc(data.user_id);
+    const customerDoc = await custRef.get();
+    const customerData = customerDoc.data();
     const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.phone_no]
+      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), customerData.business_phone_number, data.phone_no]
 
     };
 
@@ -265,7 +268,7 @@ async function updateProfile(data) {
       }
     }
 
-    await db.collection("customers").doc(data.user_id).update(updateData);
+    await custRef.update(updateData);
 
     return { status: 200, message: "Profile updated successfully" };
   } catch (error) {
@@ -388,8 +391,8 @@ async function uploadimage(req, res) {
 
       // Get the public URL
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      
-      if (req.body.is_staff == "true") {      
+
+      if (req.body.is_staff == "true") {
         const customerRef = db.collection("users").doc(req.body.staff_id);
         await customerRef.update({ profile_image: publicUrl });
       } else {
