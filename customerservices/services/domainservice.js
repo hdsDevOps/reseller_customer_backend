@@ -44,10 +44,11 @@ async function adddomain(data) {
       .add(newDomain);
     if (docRef.id) {
       const custRef = db.collection("customers").doc(data.customer_id);
-      const custData = await custRef.get();
-      if (custData.domain == "" && custData.domain == null && custData.domain == undefined) {
+      const custData = await custRef.get();     
+      if (custData.domain == "" || custData.domain == null || custData.domain == undefined) {
         await custRef.update({
-          domain: data.domain_name
+          domain: data.domain_name,
+          domain_details:{...data.domain_details,domain_name:data.domain_name,domain_staus:data.domain_status},
         });
 
       }
