@@ -47,6 +47,7 @@ async function registerCustomer(data) {
       passwordHash: hash,
       email: data.email,
       isVerified: false,
+      account_status:"Active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
