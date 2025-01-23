@@ -98,6 +98,7 @@ async function newCustomerRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
+      account_status:"active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -163,6 +164,7 @@ async function newCustomerOnlyRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
+      account_status:"active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
