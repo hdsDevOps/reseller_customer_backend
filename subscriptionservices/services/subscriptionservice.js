@@ -55,7 +55,26 @@ const addCustomerSubscription = async (data) => {
     let newSubscription = {};
     let subs = {};
     let trial = {};
-    let docRef={};
+    let docRef = {};
+    if (data.hasOwnProperty('domain') && data.domain.length > 0) {
+      data.domain.forEach(async element => {
+        element = element.toLowerCase();
+
+        const cusDocref = db.collection("customer_subscriptions").where("domain", "array-contains", element).where("customer_id", "==", data.customer_id).where("last_payment", "==", new Date(data.last_payment)).where("next_payment", "==", new Date(data.next_payment));
+        const cusDocSnapshot = await cusDocref.get();
+        if (!cusDocSnapshot.empty) {          
+          return { status: 200, message: "Duplicate entry found for the domain" };
+        } 
+      });
+    }
+    if (data.hasOwnProperty('plan_name_id') && data.plan_name_id != "" && data.plan_name_id != undefined) {
+      const cusDocref = db.collection("customer_subscriptions").where("plan_name_id", "==", data.plan_name_id).where("customer_id", "==", data.customer_id).where("last_payment", "==", new Date(data.last_payment)).where("next_payment", "==", new Date(data.next_payment));
+      const cusDocSnapshot = await cusDocref.get();
+      if (!cusDocSnapshot.empty) {
+        return { status: 200, message: "Duplicate entry found for the subscription" };
+      }
+
+    }
 
     newSubscription.product_type = data.product_type;
     subs.payment_cycle = newSubscription.payment_cycle = data.payment_cycle;
@@ -79,16 +98,16 @@ const addCustomerSubscription = async (data) => {
     if (data.hasOwnProperty('workspace_status')) {
       subs.workspace_status = data.workspace_status;
     }
-    
+
     if (data.product_type == "google workspace") {
       const cusDocref = db.collection("customer_subscriptions").where("product_type", "==", "google workspace").where("customer_id", "==", data.customer_id);
       const cusDocSnapshot = await cusDocref.get();
-      if (cusDocSnapshot.empty) {        
-        docRef= await admin.firestore().collection("customer_subscriptions").add(newSubscription);
-      } else {        
+      if (cusDocSnapshot.empty) {
+        docRef = await admin.firestore().collection("customer_subscriptions").add(newSubscription);
+      } else {
         cusDocSnapshot.forEach(async (doc) => {
           const cusDoc = doc.data();
-           docRef = db.collection("customer_subscriptions").doc(doc.id);
+          docRef = db.collection("customer_subscriptions").doc(doc.id);
           await docRef.update({ ...cusDoc, ...newSubscription });
         });
       }
@@ -100,7 +119,7 @@ const addCustomerSubscription = async (data) => {
       } else {
         cusDocSnapshot.forEach(async (doc) => {
           const cusDoc = doc.data();
-           docRef = db.collection("customer_subscriptions").doc(doc.id);
+          docRef = db.collection("customer_subscriptions").doc(doc.id);
           await docRef.update({ ...cusDoc, ...newSubscription });
         });
       }
@@ -111,17 +130,17 @@ const addCustomerSubscription = async (data) => {
 
 
     const workspaceRef = admin.firestore().collection("customers").doc(data.customer_id);
-    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {      
+    if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
       if (data.hasOwnProperty('license_usage') && (data.license_usage != "" || data.license_usage != null)) {
         await workspaceRef.update({ workspace: subs, ...trial, 'license_usage': data.license_usage });
       } else {
         await workspaceRef.update({ workspace: subs, ...trial });
       }
-    }else{
+    } else {
       await workspaceRef.update({ domain_details: subs });
     }
 
-    return { status: 200, message: "Customer subscription added successfully",subscription_id:docRef.id };
+    return { status: 200, message: "Customer subscription added successfully", subscription_id: docRef.id };
   } catch (error) {
     console.error("Error in addCustomerSubscription:", error);
     return {
@@ -235,7 +254,7 @@ const changeAutoRenewalStatus = async (data) => {
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
     const subscription = subscriptionDoc.data();
-    await subscriptionRef.update({ ...subscription, subscription_status:workspace });
+    await subscriptionRef.update({ ...subscription, subscription_status: workspace });
 
     if (data.hasOwnProperty('product_type') && data.product_type == "google workspace") {
 
