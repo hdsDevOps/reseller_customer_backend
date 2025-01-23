@@ -157,7 +157,7 @@ async function makeEmailAdmin(data) {
     const customerDoc = await customerRef.get();
     const emails = customerDoc.data().emails || [];
     const updatedEmails = emails.map((response) =>
-      response.email === data.rec_id ? { ...response, is_admin: true } : response
+      response.email === data.rec_id ? { ...response, is_admin: true } : { ...response, is_admin: false }
     );
     await customerRef.update({ emails: updatedEmails });
 
