@@ -56,17 +56,29 @@ const addCustomerSubscription = async (data) => {
     let subs = {};
     let trial = {};
     let docRef = {};
-    if (data.hasOwnProperty('domain') && data.domain.length > 0) {
-      data.domain.forEach(async element => {
-        element = element.toLowerCase();
 
-        const cusDocref = db.collection("customer_subscriptions").where("domain", "array-contains", element).where("customer_id", "==", data.customer_id).where("last_payment", "==", new Date(data.last_payment)).where("next_payment", "==", new Date(data.next_payment));
-        const cusDocSnapshot = await cusDocref.get();
-        if (!cusDocSnapshot.empty) {          
-          return { status: 200, message: "Duplicate entry found for the domain" };
-        } 
+    if (data.hasOwnProperty('domain') && data.domain.length > 0) {      
+
+      // Use Promise.all to handle async operations inside forEach
+      const domainChecks = data.domain.map(async element => {
+          element = element.toLowerCase();
+
+          const cusDocref = db.collection("customer_subscriptions")
+              .where("domain", "array-contains", element)
+              .where("customer_id", "==", data.customer_id)
+              .where("last_payment", "==", new Date(data.last_payment))
+              .where("next_payment", "==", new Date(data.next_payment));
+              
+          const cusDocSnapshot = await cusDocref.get();
+
+          if (!cusDocSnapshot.empty) {             
+              throw new Error("Duplicate entry found for the domain");
+          }
       });
-    }
+
+      await Promise.all(domainChecks);
+  }
+   
     if (data.hasOwnProperty('plan_name_id') && data.plan_name_id != "" && data.plan_name_id != undefined) {
       const cusDocref = db.collection("customer_subscriptions").where("plan_name_id", "==", data.plan_name_id).where("customer_id", "==", data.customer_id).where("last_payment", "==", new Date(data.last_payment)).where("next_payment", "==", new Date(data.next_payment));
       const cusDocSnapshot = await cusDocref.get();
@@ -82,11 +94,12 @@ const addCustomerSubscription = async (data) => {
     newSubscription.description = data.description;
     newSubscription.domain = data.domain;
     newSubscription.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
-    newSubscription.plan_name_id = data.plan_name_id;
+    subs.plan_name_id=newSubscription.plan_name_id = data.plan_name_id;
     subs.last_payment = newSubscription.last_payment = new Date(data.last_payment);
     subs.next_payment = newSubscription.next_payment = new Date(data.next_payment);
     newSubscription.payment_method = data.payment_method;
     subs.subscription_status = newSubscription.subscription_status = data.subscription_status;
+    subs.subscription_date = newSubscription.subscription_date = new Date();
     // subs.license_usage  = data.license_usage;
 
     if (data.hasOwnProperty('plan_name_id')) {
@@ -212,6 +225,7 @@ const updateCustomerSubscription = async (data) => {
     if (data.hasOwnProperty('reason')) {
       workspace.reason = updateValue.reason = data.reason;
     }
+    // updateValue.subscription_date = new Date();
 
     const subscriptionRef = db.collection("customer_subscriptions").doc(data.subscription_id);
     const subscriptionDoc = await subscriptionRef.get();
