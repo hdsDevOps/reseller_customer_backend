@@ -254,7 +254,7 @@ async function updateProfile(data) {
       "business_name",
       "business_state",
       "business_city",
-      "business_zip_code",
+      "zipcode",
     ];
 
     fields.forEach((field) => {
