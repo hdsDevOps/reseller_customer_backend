@@ -414,6 +414,7 @@ async function addBillingData(data) {
     // Create new staff document
     const newBill = {
       user_id: data.user_id,
+      customer_name: data.customer_name,
       subscription_id: data.subscription_id,
       date: new Date(data.date),
       transaction_id: data.transaction_id,
@@ -464,7 +465,9 @@ async function getBillingHistory(data) {
       query = query.where("domain", "==", data.domain);
     }
     if (data.hasOwnProperty("start_date") && data.start_date != "" && data.hasOwnProperty("end_date") && data.end_date != "") {
-      query = query.where("created_at", ">=", new Date(data.start_date)).where("created_at", "<=", new Date(data.end_date));
+      let start_date=new Date(data.start_date.getFullYear(),data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
+      let end_date=new Date(data.end_date.getFullYear(),data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
+      query = query.where("created_at", ">=", new Date(start_date)).where("created_at", "<=", new Date(end_date));
     }
     query = query.orderBy("created_at", "desc");
     // .limit(pageSize)

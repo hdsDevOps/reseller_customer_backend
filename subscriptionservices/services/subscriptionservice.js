@@ -12,8 +12,8 @@ const getCustomerSubscription = async (data) => {
       query = query.where("domain", "array-contains", data.domain_name);
     }
     if (data.hasOwnProperty('start_date') && data.hasOwnProperty('end_date') && data.start_date != "" && data.end_date != "") {
-      let start_date = new Date(data.start_date);
-      let end_date = new Date(data.end_date);
+      let start_date=new Date(data.start_date.getFullYear(),data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
+      let end_date=new Date(data.end_date.getFullYear(),data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
       query = query.where("last_payment", ">=", start_date).where("last_payment", "<=", end_date);
     }
 
