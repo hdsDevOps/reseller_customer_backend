@@ -411,7 +411,10 @@ async function addBillingData(data) {
       !data.invoice) {
       return { status: 400, message: "Missing required fields" };
     }
-    const searchableIndex = [data.user_id, data.customer_name, data.subscription_id, data.transaction_id, data.invoice, data.domain, data.payment_method];
+    let customer_name=data.customer_name?data.customer_name.toLowerCase():"";
+    let payment_method=data.payment_method?data.payment_method.toLowerCase():"";
+    let domain=data.domain?data.domain.toLowerCase():"";
+    const searchableIndex = [data.user_id, customer_name, data.subscription_id, data.transaction_id, data.invoice, domain, payment_method];
     // Create new staff document
     const newBill = {
       user_id: data.user_id,
