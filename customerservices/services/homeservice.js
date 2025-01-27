@@ -411,6 +411,7 @@ async function addBillingData(data) {
       !data.invoice) {
       return { status: 400, message: "Missing required fields" };
     }
+    const searchableIndex = [data.user_id, data.customer_name, data.subscription_id, data.transaction_id, data.invoice, data.domain, data.payment_method];
     // Create new staff document
     const newBill = {
       user_id: data.user_id,
@@ -427,6 +428,7 @@ async function addBillingData(data) {
       amount: data.amount,
       transaction_data: data.transaction_data,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
+      searchableIndex: searchableIndex,
     };
 
     const docRef = await db.collection("billing_history").add(newBill);
@@ -465,8 +467,8 @@ async function getBillingHistory(data) {
       query = query.where("domain", "==", data.domain);
     }
     if (data.hasOwnProperty("start_date") && data.start_date != "" && data.hasOwnProperty("end_date") && data.end_date != "") {
-      let start_date=new Date(data.start_date.getFullYear(),data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
-      let end_date=new Date(data.end_date.getFullYear(),data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
+      let start_date = new Date(data.start_date.getFullYear(), data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
+      let end_date = new Date(data.end_date.getFullYear(), data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
       query = query.where("created_at", ">=", new Date(start_date)).where("created_at", "<=", new Date(end_date));
     }
     query = query.orderBy("created_at", "desc");
