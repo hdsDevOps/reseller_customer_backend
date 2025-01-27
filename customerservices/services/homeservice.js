@@ -411,10 +411,14 @@ async function addBillingData(data) {
       !data.invoice) {
       return { status: 400, message: "Missing required fields" };
     }
-    let customer_name=data.customer_name?data.customer_name.toLowerCase():"";
-    let payment_method=data.payment_method?data.payment_method.toLowerCase():"";
-    let domain=data.domain?data.domain.toLowerCase():"";
-    const searchableIndex = [data.user_id, customer_name, data.subscription_id, data.transaction_id, data.invoice, domain, payment_method];
+    let customer_name = data.customer_name ? data.customer_name.toLowerCase() : "";
+    let payment_method = data.payment_method ? data.payment_method.toLowerCase() : "";
+    let domain = data.domain ? data.domain.toLowerCase() : "";
+    let transaction_id = data.transaction_id ? data.transaction_id.toLowerCase() : "";
+    let invoice = data.invoice ? data.invoice.toLowerCase() : "";
+    let subscription_id = data.subscription_id ? data.subscription_id.toLowerCase() : "";
+    let user_id = data.user_id ? data.user_id.toLowerCase() : "";
+    const searchableIndex = [user_id, customer_name, subscription_id, transaction_id, invoice, domain, payment_method];
     // Create new staff document
     const newBill = {
       user_id: data.user_id,
