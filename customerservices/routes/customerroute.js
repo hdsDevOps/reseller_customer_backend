@@ -382,5 +382,9 @@ router.post('/verify_recaptcha', async (req, res) => {
   res.json(result);
 });
 
+router.post('/impersonate_login', async (req, res) => {
+  const result = await customerService.impersonateLogin(req.body); 
+  res.status(result.status).json(result);
+});
 
 module.exports = router;

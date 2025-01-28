@@ -98,7 +98,7 @@ async function newCustomerRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
-      account_status:"active",
+      account_status: "active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -164,7 +164,7 @@ async function newCustomerOnlyRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
-      account_status:"active",
+      account_status: "active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -174,7 +174,7 @@ async function newCustomerOnlyRegistration(data) {
       .update({
         otp: otp,
         otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
-        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number,data.phone_no]
+        searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), data.business_phone_number, data.phone_no]
 
       });
     // Send OTP email
@@ -853,6 +853,38 @@ async function verifyRecaptcha(req) {
     return { success: false, message: 'reCAPTCHA failed' };
   }
 }
+async function impersonateLogin(data) {
+  try {
+    if (!data.email || !data.apiKey || data.apiKey !== process.env.IMPERSONATE_API_KEY) {
+      return { status: 400, message: "Missing email or key" };
+    }
+
+    const customerDoc = await db
+      .collection("customers")
+      .where("email", "==", data.email)
+      .limit(1)
+      .get();
+
+    if (customerDoc.empty) {
+      return { status: 400, message: "Invalid email" };
+
+    }
+
+    const customerData = customerDoc.docs[0].data();
+    const customerId = customerDoc.docs[0].id;
+    const token = generateToken(customerId, customerData.email);
+    return {
+      status: 200,
+      message: `Login successful`,
+      token: token,
+      customer_id: customerId     
+    };
+
+  } catch (error) {
+    console.error("Error in impersonateLogin:", error);
+    return { status: 500, message: "Error impersonate login", error: error.message };
+  }
+}
 
 module.exports = {
   registerCustomer,
@@ -866,5 +898,6 @@ module.exports = {
   resendOTP,
   resendLoginOTP,
   staffVerifyOTP,
-  verifyRecaptcha
+  verifyRecaptcha,
+  impersonateLogin
 };
