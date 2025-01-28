@@ -5,7 +5,9 @@ const { v4: uuidv4 } = require('uuid');
 const fetch = require('node-fetch');
 
 
-
+function findEmail(email, emails) {
+  return emails.find(emailObj => emailObj.email === email);
+}
 async function addEmail(data) {
   try {
     if (
@@ -14,27 +16,33 @@ async function addEmail(data) {
     ) {
       return { status: 400, message: "Missing required fields" };
     }
-
-
-
-    data.emails.forEach((email) => {
-      const { salt, hash } = hashPassword(email.password);
-      email.salt = salt;
-      email.passwordHash = hash;
-      email.uuid = email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
-    });
-
-    const customerRef = db.collection("domains").doc(data.domain_id);
-    await customerRef.update({
-      emails: admin.firestore.FieldValue.arrayUnion(...data.emails),
-      // emails: data.emails,
-      updated_at: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
+    let message = "";
+    const emailref = await db.collection("domains").doc(data.domain_id).get();
+    const emaildata = emailref.data().emails;
+    for (let email of data.emails) {
+      email.email = email.email.toLowerCase();
+      const checkemail = await findEmail(email.email, emaildata)
+      if (!checkemail || checkemail == undefined) {
+        const { salt, hash } = hashPassword(email.password);
+        email.salt = salt;
+        email.passwordHash = hash;
+        email.uuid = email.hasOwnProperty("uuid") ? email.uuid : uuidv4().replace(/-/g, '');
+      } else {
+        data.emails = data.emails.filter(e => e.email !== email.email);
+        message = "Email already exists";
+      }
+    }
+    
+    if (data.emails != "") {
+      const customerRef = db.collection("domains").doc(data.domain_id);
+      await customerRef.update({
+        emails: admin.firestore.FieldValue.arrayUnion(...data.emails),       
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
     return {
       status: 200,
-      message: "Email added successfully",
-      email_id: customerRef.id,
+      message: (message != "" ? message : "Email added successfully")      
     };
   } catch (error) {
     console.error("Error in addEmail:", error);
@@ -380,7 +388,7 @@ async function makeDefaultCard(data) {
 
 
     const updatedCards = cards.map(card => {
-      if (card.uuid === data.rec_id) {       
+      if (card.uuid === data.rec_id) {
         card.is_default = data.is_default;
       } else {
         card.is_default = false;
@@ -407,10 +415,10 @@ async function getAddress(data) {
       return { status: 400, message: "Missing required fields" };
     }
 
-    const response = await fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${data.address}&apiKey=${process.env.HERE_API_SECRET}`); 
-    const result = await response.json(); 
+    const response = await fetch(`https://geocode.search.hereapi.com/v1/geocode?q=${data.address}&apiKey=${process.env.HERE_API_SECRET}`);
+    const result = await response.json();
 
-    return { status: 200, message: "Address fetch successfully", data:result};
+    return { status: 200, message: "Address fetch successfully", data: result };
   } catch (error) {
     console.error("Error in getAddress:", error);
     return {

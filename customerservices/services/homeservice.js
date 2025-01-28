@@ -586,7 +586,7 @@ async function gethomedata() {
 async function getBanners() {
   try {
     let data = {};
-    const document = await db.collection("banners").where("active", "==", true).get();
+    const document = await db.collection("banners").where("active", "==", true).orderBy("created_at","desc").get();
 
     const documentdata = document.docs.map((doc) => ({
       id: doc.id,
