@@ -508,9 +508,10 @@ async function getsubscriptiondata(data) {
     } else {
       query = db
         .collection("subscription_plans");
+        query=query.orderBy("created_at","desc");
     }
 
-
+    
     const subscription = await query.get();
     let subscriptionData = "";
     if (data.subscription_id != "") {
