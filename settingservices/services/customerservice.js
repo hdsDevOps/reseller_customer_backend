@@ -249,7 +249,7 @@ async function resendForgetPasswordOTP(data) {
       error: error.message,
     };
   }
-}
+} 
 
 async function verifyForgetPasswordOTP(data) {
   try {
