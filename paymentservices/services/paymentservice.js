@@ -239,7 +239,7 @@ async function subscriptionDetails(subscription_id) {
 
     return { status: 200, subsccription };
   } catch (error) {
-    console.error("Error in subscriptionDetails:", error);
+    console.error("Error in subscriptionDetails:", error); 
     return {
       status: 500,
       message: "Error fetching subscription",
