@@ -894,8 +894,7 @@ async function createBase64(data) {
       return { status: 400, message: "Missing url" };
     }
     const parsedUrl = url.parse(data.url);
-    const extension = path.extname(parsedUrl.pathname).slice(1);
-    console.log("object===========", extension);
+    const extension = path.extname(parsedUrl.pathname).slice(1);    
     // Fetch the image from the URL
     const response = await axios.get(data.url, { responseType: 'arraybuffer' });
     // Convert the image buffer to a base64 string
