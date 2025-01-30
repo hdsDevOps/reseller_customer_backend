@@ -386,5 +386,9 @@ router.post('/impersonate_login', async (req, res) => {
   const result = await customerService.impersonateLogin(req.body); 
   res.status(result.status).json(result);
 });
+router.post('/create_base64', async (req, res) => {
+  const result = await customerService.createBase64(req.body); 
+  res.status(result.status).json(result);
+});
 
 module.exports = router;

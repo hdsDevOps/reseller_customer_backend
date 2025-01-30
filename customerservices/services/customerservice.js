@@ -8,6 +8,9 @@ const {
   generateToken,
   sendmail, generateAlphanumericCode
 } = require("../helper");
+const axios = require('axios');
+const url = require('url');
+const path = require('path');
 
 async function registerCustomer(data) {
   try {
@@ -877,12 +880,36 @@ async function impersonateLogin(data) {
       status: 200,
       message: `Login successful`,
       token: token,
-      customer_id: customerId     
+      customer_id: customerId
     };
 
   } catch (error) {
     console.error("Error in impersonateLogin:", error);
     return { status: 500, message: "Error impersonate login", error: error.message };
+  }
+}
+async function createBase64(data) {
+  try {
+    if (!data.url) {
+      return { status: 400, message: "Missing url" };
+    }
+    const parsedUrl = url.parse(data.url);
+    const extension = path.extname(parsedUrl.pathname).slice(1);
+    console.log("object===========", extension);
+    // Fetch the image from the URL
+    const response = await axios.get(data.url, { responseType: 'arraybuffer' });
+    // Convert the image buffer to a base64 string
+    const base64String = Buffer.from(response.data, 'binary').toString('base64');
+    // Optionally, log the base64 string
+
+    // If you want to save it to a file (optional)
+    // fs.writeFileSync('output.txt', base64String);
+    const base64image = `data:image/${extension};base64,${base64String}`
+    return { status: 200, base64: base64image };
+
+  } catch (error) {
+    console.error("Error in createBase64:", error);
+    return { status: 500, message: "Error create bas64", error: error.message };
   }
 }
 
@@ -899,5 +926,6 @@ module.exports = {
   resendLoginOTP,
   staffVerifyOTP,
   verifyRecaptcha,
-  impersonateLogin
+  impersonateLogin,
+  createBase64
 };
