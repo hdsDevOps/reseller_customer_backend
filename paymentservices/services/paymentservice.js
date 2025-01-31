@@ -9,7 +9,7 @@ const axios = require('axios');
 
 async function makeStripePayment(data) {
   const idempotencyKey = uuidv4();
-  const { product, token } = data; 
+  const { product, token } = data;
 
   try {
 
@@ -33,9 +33,9 @@ async function makeStripePayment(data) {
       }
     }
 
-    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null) {     
-      if (product.workspace.trial_plan !== "yes") {        
-        const subscription_details = await subscriptionDetails(product.workspace.plan.id)        
+    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null && product.workspace.plan != "") {
+      if (product.workspace.trial_plan !== "yes") {
+        const subscription_details = await subscriptionDetails(product.workspace.plan.id)
         let subs_amount = subscription_details.subsccription.amount_details;
         if (subs_amount != "") {
           for (const subAmount of subs_amount)
@@ -45,7 +45,6 @@ async function makeStripePayment(data) {
                   workspace_amount = subPrice.discount_price * product.workspace.license_usage
                 }
             }
-
         }
       }
     }
@@ -67,7 +66,7 @@ async function makeStripePayment(data) {
       net_price = (workspace_amount + domain_amount);
       total_price = ((net_price) + (net_price * tax / 100)).toFixed(2);
     }
-  
+
     // Create a new customer 
     const customer = await stripe.customers.create({ email: token.email, source: token.id });
     // Create a charge 
@@ -88,7 +87,7 @@ async function makeStripePayment(data) {
 
 
 async function makePaystackPayment(data) {
-  const { product, token } = data; 
+  const { product, token } = data;
 
   try {
     let domain_amount = 0;
@@ -143,7 +142,7 @@ async function makePaystackPayment(data) {
     }
 
     const params = JSON.stringify({
-      "email": ownCustomer.email,     
+      "email": ownCustomer.email,
       "amount": parseInt(total_price * 100)    // Stripe expects the amount in cents 
     })
     const options = {
@@ -239,7 +238,7 @@ async function subscriptionDetails(subscription_id) {
 
     return { status: 200, subsccription };
   } catch (error) {
-    console.error("Error in subscriptionDetails:", error); 
+    console.error("Error in subscriptionDetails:", error);
     return {
       status: 500,
       message: "Error fetching subscription",
