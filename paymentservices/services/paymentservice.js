@@ -107,7 +107,7 @@ async function makePaystackPayment(data) {
       }
     }
 
-    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null) {
+    if (product.hasOwnProperty('workspace') && product.workspace != "" && product.workspace != null && product.workspace.plan != "") {
       if (product.workspace.trial_plan !== "yes") {
         const subscription_details = await subscriptionDetails(product.workspace.plan.id)
         let subs_amount = subscription_details.subsccription.amount_details;
