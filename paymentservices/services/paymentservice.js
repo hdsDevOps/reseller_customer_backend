@@ -156,7 +156,7 @@ async function makePaystackPayment(data) {
       }
     }
 
-    const data = await new Promise((resolve, reject) => {
+    const data1 = await new Promise((resolve, reject) => {
       const req = https.request(options, response => {
         let data = '';
         response.on('data', (chunk) => {
@@ -175,7 +175,7 @@ async function makePaystackPayment(data) {
       req.end();
     });
     // Send the response back to the route 
-    return data;
+    return data1;
 
   // } catch (error) {
   //   console.error("Error while making Paystack payment:", error);
