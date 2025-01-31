@@ -236,9 +236,13 @@ async function updateProfile(data) {
     const custRef = db.collection("customers").doc(data.user_id);
     const customerDoc = await custRef.get();
     const customerData = customerDoc.data();
+    let business_phone_number = "";
+    if (customerData.business_phone_number) {
+      business_phone_number = customerData.business_phone_number;
+    }
     const updateData = {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), customerData.business_phone_number, data.phone_no]
+      searchableIndex: [data.first_name.toLowerCase(), data.last_name.toLowerCase(), `${data.first_name.toLowerCase()} ${data.last_name.toLowerCase()}`, data.email.toLowerCase(), business_phone_number, data.phone_no]
 
     };
 
