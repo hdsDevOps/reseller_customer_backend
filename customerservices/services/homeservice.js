@@ -1,5 +1,6 @@
 const { admin, db } = require("../firebaseConfig");
 const { sendmail } = require("../helper");
+const { Timestamp } = require('firebase-admin').firestore;
 
 async function submitContactForm(data) {
   try {
@@ -413,7 +414,7 @@ async function addBillingData(data) {
     }
     let customer_name = data.customer_name ? data.customer_name.toLowerCase() : "";
     let payment_method = data.payment_method ? data.payment_method.toLowerCase() : "";
-    let domain = data.domain ? data.domain.toLowerCase() : "";  
+    let domain = data.domain ? data.domain.toLowerCase() : "";
     const searchableIndex = [data.user_id, customer_name, data.subscription_id, data.transaction_id, data.invoice, domain, payment_method];
     // Create new staff document
     const newBill = {
@@ -470,10 +471,14 @@ async function getBillingHistory(data) {
       query = query.where("domain", "==", data.domain);
     }
     if (data.hasOwnProperty("start_date") && data.start_date != "" && data.hasOwnProperty("end_date") && data.end_date != "") {
-      let start_date = new Date(data.start_date.getFullYear(), data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
-      let end_date = new Date(data.end_date.getFullYear(), data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
-      query = query.where("created_at", ">=", new Date(start_date)).where("created_at", "<=", new Date(end_date));
+      let startDate = new Date(data.start_date);
+      let endDate = new Date(data.end_date);
+      let start_date = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0, 0);
+      let end_date = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
+     
+      query = query.where("created_at", ">=", (start_date)).where("created_at", "<=", (end_date));
     }
+    
     query = query.orderBy("created_at", "desc");
     // .limit(pageSize)
     // .offset(startAt);
@@ -508,10 +513,10 @@ async function getsubscriptiondata(data) {
     } else {
       query = db
         .collection("subscription_plans");
-        query=query.orderBy("created_at","desc");
+      query = query.orderBy("created_at", "desc");
     }
 
-    
+
     const subscription = await query.get();
     let subscriptionData = "";
     if (data.subscription_id != "") {
@@ -586,7 +591,7 @@ async function gethomedata() {
 async function getBanners() {
   try {
     let data = {};
-    const document = await db.collection("banners").where("active", "==", true).orderBy("created_at","desc").get();
+    const document = await db.collection("banners").where("active", "==", true).orderBy("created_at", "desc").get();
 
     const documentdata = document.docs.map((doc) => ({
       id: doc.id,
