@@ -478,8 +478,17 @@ async function getBillingHistory(data) {
      
       query = query.where("created_at", ">=", (start_date)).where("created_at", "<=", (end_date));
     }
+    if(data.sortdata){
+      if(data.sortdata.sort_text=="domain"){
+        query = query.orderBy("domain", data.sortdata.order);
+      }
+      else if(data.sortdata.sort_text=="created_at"){
+        query = query.orderBy("created_at", data.sortdata.order);
+      }else{
+        query = query.orderBy("created_at", "desc");
+      }
+    }
     
-    query = query.orderBy("created_at", "desc");
     // .limit(pageSize)
     // .offset(startAt);
 
@@ -487,8 +496,35 @@ async function getBillingHistory(data) {
     const billingHistory = billingHistorySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
+      transaction_data_amount:doc.data().transaction_data && doc.data().transaction_data.amount && doc.data().transaction_data.amount!=null?Number(doc.data().transaction_data.amount):0,
       date: doc.data().created_at.toDate(),
     }));
+   
+if(data.sortdata){
+if(data.sortdata.sort_text!=""){
+  billingHistory.sort((a,b)=>{
+    if (a.transaction_data_amount < b.transaction_data_amount) {
+      if(data.sortdata.order=="asc"){
+        return -1;
+      }else{
+        return 1;
+      }
+   
+    }
+    if (a.transaction_data_amount > b.transaction_data_amount) {
+      if(data.sortdata.order=="asc"){
+        return 1;
+      }else{
+        return -1;
+      }
+    }
+    return 0;
+  });
+}
+}
+
+
+
 
     return {
       status: 200,
