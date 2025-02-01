@@ -266,7 +266,7 @@ async function getStaffList(data) {
 
     // Search functionality if search_text is provided
     if(data.sortdata){
-    if (data.sortdata.search_text && data.sortdata.search_text!="") {      
+    if (data.sortdata.sort_text && data.sortdata.sort_text!="") {      
       query = query.orderBy("first_name", data.sortdata.order);
     }
   }
