@@ -36,6 +36,19 @@ async function adddomain(data) {
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       searchableIndex: [data.domain_name.toLowerCase()]
     };
+const domCheckref=await db.collection("domains").where("customer_id","==",data.customer_id).where("domain_name","==",data.domain_name).get();
+
+if(!(domCheckref.empty)){
+  const domains_data = domCheckref.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })); 
+  return {
+    status: 200,
+    message: "Domain added successfully",
+    domain_id: domains_data[0].id,
+  };
+}
 
 
     const docRef = await admin
