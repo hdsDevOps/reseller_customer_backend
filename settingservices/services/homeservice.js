@@ -72,8 +72,8 @@ async function getSettings(data) {
       query = query.where("user_type", "==", data.user_type);
 
     }
-    if(data.sortdata){
-      if (data.sortdata.search_text && data.sortdata.search_text!="") {      
+    if(data.sortdata){      
+      if (data.sortdata.sort_text && data.sortdata.sort_text!="") {     
         query = query.orderBy("user_type", data.sortdata.order);
       }else{
         query = query.orderBy("timestamp", "desc");
