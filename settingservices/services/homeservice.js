@@ -258,10 +258,11 @@ async function getStaffList(data) {
 
 
     // Search functionality if search_text is provided
-    // if (data.search_text!="" && data.search_text!=null) {
-    //   const searchText = data.search_text.toLowerCase();
-    //   query = query.where("searchableIndex", "array-contains", searchText);
-    // }
+    if(data.sortdata){
+    if (data.sortdata.search_text && data.sortdata.search_text!="") {      
+      query = query.orderBy("first_name", data.sortdata.order);
+    }
+  }
 
     const staffSnapshot = await query.get();
     let search_text = data.search_text;
