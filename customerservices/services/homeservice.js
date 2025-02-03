@@ -501,26 +501,51 @@ async function getBillingHistory(data) {
     }));
    
 if(data.sortdata){
-if(data.sortdata.sort_text!=""){
-  billingHistory.sort((a,b)=>{
-    if (a.transaction_data_amount < b.transaction_data_amount) {
-      if(data.sortdata.order=="asc"){
-        return -1;
-      }else{
-        return 1;
-      }
-   
+  if (data.sortdata.sort_text == "amount") {
+    if (data.sortdata.order == "asc") {
+      billingHistory.sort((a, b) => {
+        if (!a.transaction_data || !b.transaction_data) {
+          if (!a.transaction_data) return 0; // Move a to the end
+          if (!b.transaction_data) return 0; // Move b to the end
+        }
+
+        // Check if amount is null or undefined
+        if (!a.transaction_data.amount || !b.transaction_data.amount) {
+          if (!a.transaction_data.amount) return 1; // Move a to the end
+          if (!b.transaction_data.amount) return -1; // Move b to the end
+        }
+        if (a.transaction_data.amount < b.transaction_data.amount) {
+          return -1;
+        }
+        if (a.transaction_data.amount > b.transaction_data.amount) {
+          return 1;
+        }
+        return 0;
+      });
     }
-    if (a.transaction_data_amount > b.transaction_data_amount) {
-      if(data.sortdata.order=="asc"){
-        return 1;
-      }else{
-        return -1;
-      }
+    if (data.sortdata.order == "desc") {
+      billingHistory.sort((a, b) => {
+        if (!a.transaction_data || !b.transaction_data) {
+          if (!a.transaction_data) return 0; // Move a to the end
+          if (!b.transaction_data) return 0; // Move b to the end
+        }
+
+        // Check if amount is null or undefined
+        if (!a.transaction_data.amount) {
+          a.transaction_data.amount = 0;
+        } if (!b.transaction_data.amount) {
+          b.transaction_data.amount = 0;
+        }
+        if (a.transaction_data.amount < b.transaction_data.amount) {
+          return 1;
+        }
+        if (a.transaction_data.amount > b.transaction_data.amount) {
+          return -1;
+        }
+        return 0;
+      });
     }
-    return 0;
-  });
-}
+  }
 }
 
 
