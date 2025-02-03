@@ -745,7 +745,7 @@ async function staffLogin(data) {
 
       return {
         status: 200,
-        message: `Login successful1111`,
+        message: `Login successful`,
         token: token,
         customer_id: customerId,
         staff_id: staff_id,
