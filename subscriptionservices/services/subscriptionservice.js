@@ -12,8 +12,8 @@ const getCustomerSubscription = async (data) => {
       query = query.where("domain", "array-contains", data.domain_name);
     }
     if (data.hasOwnProperty('start_date') && data.hasOwnProperty('end_date') && data.start_date != "" && data.end_date != "") {
-      let start_date=new Date(data.start_date.getFullYear(),data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
-      let end_date=new Date(data.end_date.getFullYear(),data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
+      let start_date = new Date(data.start_date.getFullYear(), data.start_date.getMonth(), data.start_date.getDate(), 0, 0, 0, 0);
+      let end_date = new Date(data.end_date.getFullYear(), data.end_date.getMonth(), data.end_date.getDate(), 23, 59, 59, 999);
       query = query.where("last_payment", ">=", start_date).where("last_payment", "<=", end_date);
     }
 
@@ -57,28 +57,28 @@ const addCustomerSubscription = async (data) => {
     let trial = {};
     let docRef = {};
 
-    if (data.hasOwnProperty('domain') && data.domain.length > 0) {      
+    if (data.hasOwnProperty('domain') && data.domain.length > 0) {
 
       // Use Promise.all to handle async operations inside forEach
       const domainChecks = data.domain.map(async element => {
-          element = element.toLowerCase();
+        element = element != "" && element != null ? element.toLowerCase() : "";
 
-          const cusDocref = db.collection("customer_subscriptions")
-              .where("domain", "array-contains", element)
-              .where("customer_id", "==", data.customer_id)
-              .where("last_payment", "==", new Date(data.last_payment))
-              .where("next_payment", "==", new Date(data.next_payment));
-              
-          const cusDocSnapshot = await cusDocref.get();
+        const cusDocref = db.collection("customer_subscriptions")
+          .where("domain", "array-contains", element)
+          .where("customer_id", "==", data.customer_id)
+          .where("last_payment", "==", new Date(data.last_payment))
+          .where("next_payment", "==", new Date(data.next_payment));
 
-          if (!cusDocSnapshot.empty) {             
-              throw new Error("Duplicate entry found for the domain");
-          }
+        const cusDocSnapshot = await cusDocref.get();
+
+        if (!cusDocSnapshot.empty) {
+          throw new Error("Duplicate entry found for the domain");
+        }
       });
 
       await Promise.all(domainChecks);
-  }
-   
+    }
+
     if (data.hasOwnProperty('plan_name_id') && data.plan_name_id != "" && data.plan_name_id != undefined) {
       const cusDocref = db.collection("customer_subscriptions").where("plan_name_id", "==", data.plan_name_id).where("customer_id", "==", data.customer_id).where("last_payment", "==", new Date(data.last_payment)).where("next_payment", "==", new Date(data.next_payment));
       const cusDocSnapshot = await cusDocref.get();
@@ -94,7 +94,7 @@ const addCustomerSubscription = async (data) => {
     newSubscription.description = data.description;
     newSubscription.domain = data.domain;
     newSubscription.payment_details = admin.firestore.FieldValue.arrayUnion(...data.payment_details);
-    subs.plan_name_id=newSubscription.plan_name_id = data.plan_name_id;
+    subs.plan_name_id = newSubscription.plan_name_id = data.plan_name_id;
     subs.last_payment = newSubscription.last_payment = new Date(data.last_payment);
     subs.next_payment = newSubscription.next_payment = new Date(data.next_payment);
     newSubscription.payment_method = data.payment_method;
@@ -314,7 +314,7 @@ const updateLicenseUsage = async (data) => {
     };
   }
 }
- 
+
 module.exports = {
   getCustomerSubscription,
   addCustomerSubscription,
