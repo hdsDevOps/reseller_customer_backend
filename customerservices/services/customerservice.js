@@ -101,7 +101,7 @@ async function newCustomerRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
-      account_status: "active",
+      status: "active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -167,7 +167,7 @@ async function newCustomerOnlyRegistration(data) {
       email: data.email,
       isVerified: false,
       authentication: true,
-      account_status: "active",
+      status: "active",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -305,6 +305,10 @@ async function loginCustomer(data) {
       //   return { status: 400, message: "Invalid email or password" };
       // }
 
+    } else {
+      if (customerDoc.docs[0].data().status != "active") {
+        return { status: 400, message: "Your account has been in-active." };
+      }
     }
 
     const customerData = customerDoc.docs[0].data();
@@ -731,7 +735,9 @@ async function staffLogin(data) {
 
     const custSnap = await db.collection("customers").doc(customerId).get();
     const custdata = custSnap.data();
-
+    if (custdata.status != "active") {
+      return { status: 400, message: "Your account has been In-active." };
+    }
 
     if (custdata.authentication == false) {
       const token = generateToken(customerId, customerData.email);
@@ -894,7 +900,7 @@ async function createBase64(data) {
       return { status: 400, message: "Missing url" };
     }
     const parsedUrl = url.parse(data.url);
-    const extension = path.extname(parsedUrl.pathname).slice(1);    
+    const extension = path.extname(parsedUrl.pathname).slice(1);
     // Fetch the image from the URL
     const response = await axios.get(data.url, { responseType: 'arraybuffer' });
     // Convert the image buffer to a base64 string
