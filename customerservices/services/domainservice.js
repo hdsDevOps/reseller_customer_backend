@@ -88,7 +88,7 @@ async function domainlist(data) {
     }
     let domain = [];
     let domains_data = [];
-    domain = await db.collection("domains").where("customer_id", "==", data.customer_id).where("is_deleted", "==", false).get();
+    domain = await db.collection("domains").where("customer_id", "==", data.customer_id).where("is_deleted", "==", false).orderBy("created_at","asc").get();
 
     domains_data = domain.docs.map((doc) => ({
       id: doc.id,
