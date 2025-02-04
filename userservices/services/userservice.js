@@ -37,9 +37,31 @@ async function addEmail(data) {
       return { status: 400, message: "Missing required fields" };
     }
 
+    let existingEmails = [];
+    const customerRef = db.collection("domains").doc(data.domain_id);
+    const customerDoc = await customerRef.get();
 
+    if (customerDoc.exists) {
+      const customerData = customerDoc.data();
+      if (customerData.emails) {
+        existingEmails = customerData.emails;
+      }
+    }
 
-    data.emails.forEach((email) => {
+    // Step 2: Compare with new emails
+    const newEmails = data.emails;
+    const emailsToProcess = [];
+    let duplicateEmails = "";
+
+    newEmails.forEach((email) => {
+      const isDuplicate = existingEmails.some(existingEmail => existingEmail.email === email.email);
+      if (isDuplicate) {
+        duplicateEmails += `${email.email}; `;
+      } else {
+        emailsToProcess.push(email);
+      }
+    });
+    emailsToProcess.forEach((email) => {
       const { salt, hash } = hashPassword(email.password);
       email.salt = salt;
       email.passwordHash = hash;
@@ -47,13 +69,20 @@ async function addEmail(data) {
       email.status = true;
     });
 
-    const customerRef = db.collection("domains").doc(data.domain_id);
+
     await customerRef.update({
       emails: admin.firestore.FieldValue.arrayUnion(...data.emails),
       // emails: data.emails,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
-
+    
+    if (duplicateEmails.length > 0) {
+      return {
+        status: 200,
+        message: `Email added successfully.Duplicate email is there.`,
+        email_id: customerRef.id
+      }
+    }
     return {
       status: 200,
       message: "Email added successfully",
@@ -207,12 +236,12 @@ async function changeemailstatus(data) {
 
     const customerRef = db.collection("domains").doc(data.domain_id);
     const customerDoc = await customerRef.get();
-    const emails = customerDoc.data().emails || [];   
-    
+    const emails = customerDoc.data().emails || [];
+
     const updatedEmails = emails.map((em) =>
       em.email === data.email ? { ...em, status: data.status } : em
-    );    
-    if(updatedEmails[0].is_admin){
+    );
+    if (updatedEmails[0].is_admin) {
       return { status: 400, message: "you do not have permission to change this status." };
     }
     await customerRef.update({ emails: updatedEmails });
