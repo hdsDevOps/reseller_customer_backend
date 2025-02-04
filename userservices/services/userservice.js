@@ -75,7 +75,7 @@ async function addEmail(data) {
       // emails: data.emails,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     if (duplicateEmails.length > 0) {
       return {
         status: 200,
@@ -239,16 +239,15 @@ async function changeemailstatus(data) {
     const emails = customerDoc.data().emails || [];
 
     const updatedEmails = emails.map((em) =>
-      em.email === data.email ? { ...em, status: data.status } : em
+      em.email === data.email && em.is_admin != true ? { ...em, status: data.status } : em
     );
-    if (updatedEmails[0].is_admin) {
-      return { status: 400, message: "you do not have permission to change this status." };
+    if (updatedEmails.some((em) => em.email === data.email && em.is_admin == true)) {
+      return { status: 400, message: "You do not have permission to change this status." };
     }
     await customerRef.update({ emails: updatedEmails });
 
     return { status: 200, message: "Email status change successfully" };
-  } catch (error) {
-    console.error("Error in change status:", error);
+  } catch (error) {    
     return {
       status: 500,
       message: "Error change email status",
