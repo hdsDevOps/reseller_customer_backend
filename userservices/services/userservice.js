@@ -207,13 +207,14 @@ async function changeemailstatus(data) {
 
     const customerRef = db.collection("domains").doc(data.domain_id);
     const customerDoc = await customerRef.get();
-    const emails = customerDoc.data().emails || [];
-    if(is_admin){
-      return { status: 400, message: "Can not change email status successfully" };
-    }
+    const emails = customerDoc.data().emails || [];   
+    
     const updatedEmails = emails.map((em) =>
       em.email === data.email ? { ...em, status: data.status } : em
-    );
+    );    
+    if(updatedEmails[0].is_admin){
+      return { status: 400, message: "you do not have permission to change this status." };
+    }
     await customerRef.update({ emails: updatedEmails });
 
     return { status: 200, message: "Email status change successfully" };
