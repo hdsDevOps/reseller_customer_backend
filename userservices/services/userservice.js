@@ -208,7 +208,9 @@ async function changeemailstatus(data) {
     const customerRef = db.collection("domains").doc(data.domain_id);
     const customerDoc = await customerRef.get();
     const emails = customerDoc.data().emails || [];
-
+    if(is_admin){
+      return { status: 400, message: "Can not change email status successfully" };
+    }
     const updatedEmails = emails.map((em) =>
       em.email === data.email ? { ...em, status: data.status } : em
     );
