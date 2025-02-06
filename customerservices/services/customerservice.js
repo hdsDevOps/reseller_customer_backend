@@ -288,7 +288,7 @@ async function verifyLoginOTP(data) {
 }
 
 async function loginCustomer(data) {
-  // try {
+  try {
     if (!data.email || !data.password) {
       return { status: 400, message: "Missing email or password" };
     }
@@ -368,10 +368,10 @@ async function loginCustomer(data) {
       is_staff: false,
       otp: otp
     };
-  // } catch (error) {
-  //   console.error("Error in loginCustomer:", error);
-  //   return { status: 500, message: "Error during login", error: error.message };
-  // }
+  } catch (error) {
+    console.error("Error in loginCustomer:", error);
+    return { status: 500, message: "Error during login", error: error.message };
+  }
 }
 
 async function verifyOTP(data) {
