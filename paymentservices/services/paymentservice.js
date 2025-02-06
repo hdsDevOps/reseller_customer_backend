@@ -89,7 +89,7 @@ async function makeStripePayment(data) {
 async function makePaystackPayment(data) {
   const { product, token } = data;
 
-  // try {
+  try {
     let domain_amount = 0;
     let workspace_amount = 0;
     let total_price = 0;
@@ -177,10 +177,10 @@ async function makePaystackPayment(data) {
     // Send the response back to the route 
     return data1;
 
-  // } catch (error) {
-  //   console.error("Error while making Paystack payment:", error);
-  //   return { status: 500, error: error.message };
-  // }
+  } catch (error) {
+    console.error("Error while making Paystack payment:", error);
+    return { status: 500, error: error.message };
+  }
 }
 
 async function customerDetails(customer_id) {
