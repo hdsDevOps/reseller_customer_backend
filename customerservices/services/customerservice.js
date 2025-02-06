@@ -288,7 +288,7 @@ async function verifyLoginOTP(data) {
 }
 
 async function loginCustomer(data) {
-  try {
+  // try {
     if (!data.email || !data.password) {
       return { status: 400, message: "Missing email or password" };
     }
@@ -368,10 +368,10 @@ async function loginCustomer(data) {
       is_staff: false,
       otp: otp
     };
-  } catch (error) {
-    console.error("Error in loginCustomer:", error);
-    return { status: 500, message: "Error during login", error: error.message };
-  }
+  // } catch (error) {
+  //   console.error("Error in loginCustomer:", error);
+  //   return { status: 500, message: "Error during login", error: error.message };
+  // }
 }
 
 async function verifyOTP(data) {
@@ -710,7 +710,7 @@ async function staffLogin(data) {
       .where("email", "==", data.email)
       .limit(1)
       .get();
-
+     
     if (customerDoc.empty) {
       if (customerDoc.empty) {
         return { status: 400, message: "Invalid email or password" };
@@ -735,6 +735,9 @@ async function staffLogin(data) {
 
     const custSnap = await db.collection("customers").doc(customerId).get();
     const custdata = custSnap.data();
+    if(!custdata){
+      return { status: 400, message: "customer does not exist." };
+    }
     if (custdata.status != "active") {
       return { status: 400, message: "Your account has been In-active." };
     }
@@ -759,7 +762,7 @@ async function staffLogin(data) {
         is_staff: true
       };
     }
-
+  
 
 
     const otp = generateOTP();
