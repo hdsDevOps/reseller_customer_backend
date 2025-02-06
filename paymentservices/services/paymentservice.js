@@ -175,7 +175,7 @@ async function makePaystackPayment(data) {
       req.end();
     });
     // Send the response back to the route 
-    return data1;
+    return data1; 
 
   } catch (error) {
     console.error("Error while making Paystack payment:", error);
