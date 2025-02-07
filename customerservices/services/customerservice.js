@@ -119,8 +119,7 @@ async function newCustomerRegistration(data) {
       status: 200,
       message:
         "Customer registered successfully. Please check your email for OTP.",
-      userId: userRecord.uid,
-      otp: otp,
+      userId: userRecord.uid
     };
   } catch (error) {
     console.error("Error in registerCustomer:", error);
@@ -186,8 +185,7 @@ async function newCustomerOnlyRegistration(data) {
       status: 200,
       message:
         "Customer registered successfully. Please check your email for OTP.",
-      userId: data.customer_id,
-      otp: otp,
+      userId: data.customer_id
     };
   } catch (error) {
     console.error("Error in registerCustomer:", error);
@@ -365,8 +363,7 @@ async function loginCustomer(data) {
       message: "Login successful. Please check your email for OTP.",
       customer_id: customerId,
       staff_id: "",
-      is_staff: false,
-      otp: otp
+      is_staff: false
     };
   } catch (error) {
     console.error("Error in loginCustomer:", error);
@@ -785,8 +782,7 @@ async function staffLogin(data) {
       customer_id: customerId,
       staff_id: staff_id,
       role_id: role_id,
-      is_staff: true,
-      otp: otp
+      is_staff: true
     };
   } catch (error) {
     console.error("Error in loginCustomer:", error);

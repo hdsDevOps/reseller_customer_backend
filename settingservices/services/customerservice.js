@@ -199,7 +199,7 @@ async function requestPasswordReset(data) {
     });
 
     await sendOTPEmail(data.email, otp);
-    console.log(otp);
+   
     return { status: 200, message: "Password reset OTP sent to your email" };
   } catch (error) {
     console.error("Error in requestPasswordReset:", error);

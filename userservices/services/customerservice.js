@@ -100,7 +100,7 @@ async function loginCustomer(data) {
     }
 
     const otp = generateOTP();
-    console.log(otp);
+  
 
     await db
       .collection("customers")
