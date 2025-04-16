@@ -8,6 +8,7 @@ const swaggerSpec = require("./swagger");
 require("dotenv").config();
 // Import routes
 const settingRoute = require('./routes/settingroute');
+const postLogger = require("./middleware/postLogger");
 require('dotenv').config();
 
             
@@ -20,23 +21,23 @@ app.use(
 );
 
 // Routes
-app.get("/", (req, res) => {
+app.get("/", postLogger, (req, res) => {
   res.redirect("/api-docs");
 });
 
-app.get("/settingservices", (req, res) => {
+app.get("/settingservices", postLogger, (req, res) => {
   res.send("We are calling customer users API");
 });
 
-app.get("/settingservices/test", (req, res) => {
+app.get("/settingservices/test", postLogger, (req, res) => {
   res.send("We Are Calling Settings Test API");
 });
 
-app.use('/settingservices/setting/api/v1', settingRoute);
+app.use('/settingservices/setting/api/v1', postLogger, settingRoute);
 
 
 // Swagger UI
-app.use("/settingservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/settingservices/api-docs", postLogger, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 

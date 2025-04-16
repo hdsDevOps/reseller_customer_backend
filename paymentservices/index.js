@@ -10,6 +10,7 @@ require("dotenv").config();
    
 const homeRoute = require('./routes/homeroute');
 const paymentroute = require('./routes/payment');
+const postLogger = require("./middleware/postLogger");
 
 require('dotenv').config();
   
@@ -23,23 +24,23 @@ app.use(
 );
 
 // Routes
-app.get("/", (req, res) => {
+app.get("/", postLogger, (req, res) => {
   res.redirect("/api-docs");
 });
 
-app.get("/paymentservices", (req, res) => {
+app.get("/paymentservices", postLogger, (req, res) => {
   res.send("We are calling Payment users API");
 });
 
-app.get("/paymentservices/test", (req, res) => {
+app.get("/paymentservices/test", postLogger, (req, res) => {
   res.send("We Are Calling User Test API");
 });
 
-app.use('/paymentservices/payment/api/v1', homeRoute);
-app.use('/paymentservices/payments/api/v1', paymentroute);
+app.use('/paymentservices/payment/api/v1', postLogger, homeRoute);
+app.use('/paymentservices/payments/api/v1', postLogger, paymentroute);
 
 // Swagger UI
-app.use("/paymentservices/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/paymentservices/api-docs", postLogger, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 
