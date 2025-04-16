@@ -22,7 +22,7 @@ app.use(
 app.get('/subscriptionservices', postLogger, (req,res)=>{
     res.send("We are calling subscription API");
 })
-   
+    
 app.get('/subscriptionservices/test', postLogger, (req,res)=>{
     res.send("We Are Calling User Test API");
 })

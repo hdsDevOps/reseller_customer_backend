@@ -32,7 +32,7 @@ app.get("/userservices", postLogger, (req, res) => {
 
 app.get("/userservices/test", postLogger, (req, res) => {
   res.send("We Are Calling User Test API");
-});
+}); 
 
 app.use('/userservices/user/api/v1', postLogger, userRoute);
 

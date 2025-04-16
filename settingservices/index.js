@@ -33,7 +33,7 @@ app.get("/settingservices/test", postLogger, (req, res) => {
   res.send("We Are Calling Settings Test API");
 });
 
-app.use('/settingservices/setting/api/v1', postLogger, settingRoute);
+app.use('/settingservices/setting/api/v1', postLogger, settingRoute); 
 
 
 // Swagger UI

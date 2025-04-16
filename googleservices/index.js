@@ -8,7 +8,7 @@ app.get('/googleservices', postLogger, (req,res)=>{
     res.send("We are calling Google services API");
 })
    
-app.get('/googleservices/test', postLogger, (req,res)=>{
+app.get('/googleservices/test', postLogger, (req,res)=>{ 
     res.send("We Are Calling User Test API");
 })
 // Start the server and listen on the specified port

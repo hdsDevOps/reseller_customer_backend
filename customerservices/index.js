@@ -30,7 +30,7 @@ app.get("/", postLogger, (req, res) => {
 
 app.get("/customerservices", postLogger, (req, res) => {
   res.send("We are calling customer users API");
-});
+}); 
 
 app.get("/customerservices/test", postLogger, (req, res) => {
   res.send("We Are Calling User Test API CUSTOMER..");
