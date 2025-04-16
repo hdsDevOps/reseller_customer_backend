@@ -1,6 +1,6 @@
 // middleware/postLogger.js
 const fs = require('fs');
-const { db } = require('../../customerservices/firebaseConfig');
+const { db } = require('../firebaseConfig.js');
 
 function postLogger(req, res, next) {
   const startTime = Date.now();
