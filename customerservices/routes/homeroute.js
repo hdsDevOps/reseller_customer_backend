@@ -753,7 +753,7 @@ router.get('/get_banners', async (req, res) => {
 router.post('/get_promotion_list', async (req, res) => {
   try {
     const result = await homeService.getPromotionList(req.body);
-    res.json(result);
+    res.status(result.status).json(result);
   } catch (error) {
     res.status(500).json({ status: 500, message: "Error retrieving data", error: error.message });
   }

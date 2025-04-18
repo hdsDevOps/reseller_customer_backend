@@ -671,7 +671,12 @@ async function getPromotionList(data) {
       const specificDocRef = db.collection("promotions").doc(data.promotion_id);
       const doc = await specificDocRef.get();
       if (!doc.exists) {
-        throw new Error("Promotion not found");
+        return {
+          status: 500,
+          message: "Promotion not found",
+          // error: error.message,
+        };
+        // throw new Error("Promotion not found");
       }
       return {
         id: doc.id,

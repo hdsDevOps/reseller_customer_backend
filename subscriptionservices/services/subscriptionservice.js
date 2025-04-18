@@ -72,7 +72,8 @@ const addCustomerSubscription = async (data) => {
         const cusDocSnapshot = await cusDocref.get();
 
         if (!cusDocSnapshot.empty) {
-          throw new Error("Duplicate entry found for the domain");
+          return { status: 400, message: "Duplicate entry found for the domain" };
+          // throw new Error("Duplicate entry found for the domain");
         }
       });
 
