@@ -56,7 +56,7 @@ function postLogger(req, res, next) {
       message: logMessage,
       at_time: new Date().toISOString(),
       method: req.method,
-      elapsed_time: elapsedTime,
+      elapsed_time: elapsedTime, 
     });
   });
 
