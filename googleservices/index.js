@@ -6,7 +6,7 @@ const PORT = 7009; // Set the port number for the server
 
 app.get('/googleservices', postLogger, (req,res)=>{
     res.send("We are calling Google services API");
-})
+})    
    
 app.get('/googleservices/test', postLogger, (req,res)=>{ 
     res.send("We Are Calling User Test API");
